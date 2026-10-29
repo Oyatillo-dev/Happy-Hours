@@ -1,0 +1,57 @@
+# Local stack: PostgreSQL + API + partner/admin web.
+#   docker compose up --build
+#   docker compose exec api npx tsx prisma/seed.ts   # optional demo data (needs dev deps: use `npm run db:seed` locally instead)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: hh
+      POSTGRES_PASSWORD: hh
+      POSTGRES_DB: happyhours
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hh -d happyhours"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      PUBLIC_URL: http://localhost:4000
+      DATABASE_URL: postgresql://hh:hh@db:5432/happyhours
+      JWT_SECRET: ${JWT_SECRET:-change-me-access-secret}
+      PAYMENT_WEBHOOK_SECRET: ${PAYMENT_WEBHOOK_SECRET:-change-me-webhook-secret}
+      ADMIN_PHONES: ${ADMIN_PHONES:-+996700000001}
+      CORS_ORIGINS: http://localhost:8080
+      SMS_PROVIDER: console
+      PAYMENT_PROVIDER: mock
+      PUSH_PROVIDER: expo
+    ports:
+      - "4000:4000"
+    volumes:
+      - uploads:/app/apps/api/uploads
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:4000
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+volumes:
+  db-data:
+  uploads:

@@ -1,0 +1,354 @@
+// Happy Hours data model. Money is stored in whole soms (KGS).
+// Timestamps are UTC; "date" fields on offers are local Bishkek dates (YYYY-MM-DD).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BUYER
+  PARTNER_OWNER
+  PARTNER_STAFF
+  SUPPORT
+  ADMIN
+}
+
+enum Language {
+  ru
+  ky
+}
+
+enum PartnerStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+  SUSPENDED
+}
+
+enum PartnerCategory {
+  BAKERY
+  CAFE
+  RESTAURANT
+  GROCERY
+  OTHER
+}
+
+enum BoxCategory {
+  BAKERY
+  MEALS
+  GROCERY
+  DESSERTS
+  MIXED
+}
+
+enum OfferStatus {
+  ACTIVE
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  EXPIRED
+  PAID
+  READY
+  ISSUED
+  NO_SHOW
+  CANCELLED_BY_BUYER
+  CANCELLED_BY_PARTNER
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum ComplaintStatus {
+  OPEN
+  APPROVED
+  REJECTED
+}
+
+enum PayoutStatus {
+  PENDING
+  PAID
+}
+
+model User {
+  id         String    @id @default(cuid())
+  phone      String    @unique
+  name       String?
+  language   Language  @default(ru)
+  role       Role      @default(BUYER)
+  partnerId  String?
+  partner    Partner?  @relation(fields: [partnerId], references: [id])
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id])
+  createdAt  DateTime  @default(now())
+  deletedAt  DateTime?
+
+  orders        Order[]
+  reviews       Review[]
+  favorites     Favorite[]
+  pushTokens    PushToken[]
+  notifications Notification[]
+  refreshTokens RefreshToken[]
+
+  @@index([partnerId])
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  phone     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([phone, createdAt])
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Partner {
+  id                 String          @id @default(cuid())
+  brandName          String
+  legalName          String
+  inn                String
+  category           PartnerCategory
+  contactPhone       String
+  bankName           String
+  bankAccount        String
+  commissionPct      Int             @default(15)
+  promoUntil         DateTime?
+  status             PartnerStatus   @default(PENDING)
+  rejectReason       String?
+  rating             Float?
+  ratingCount        Int             @default(0)
+  cancellationsCount Int             @default(0)
+  createdAt          DateTime        @default(now())
+
+  users     User[]
+  locations Location[]
+  templates BoxTemplate[]
+  reviews   Review[]
+  favorites Favorite[]
+  payouts   Payout[]
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  partnerId String
+  partner   Partner  @relation(fields: [partnerId], references: [id])
+  name      String
+  address   String
+  lat       Float
+  lng       Float
+  openTime  String // HH:mm local
+  closeTime String // HH:mm local
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  offers    BoxOffer[]
+  schedules Schedule[]
+  staff     User[]
+}
+
+model BoxTemplate {
+  id          String      @id @default(cuid())
+  partnerId   String
+  partner     Partner     @relation(fields: [partnerId], references: [id])
+  title       String
+  category    BoxCategory
+  description String      @default("")
+  allergens   String      @default("")
+  priceKgs    Int
+  valueKgs    Int
+  weightKg    Float       @default(1)
+  photoUrl    String?
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+
+  offers    BoxOffer[]
+  schedules Schedule[]
+}
+
+model Schedule {
+  id             String      @id @default(cuid())
+  templateId     String
+  template       BoxTemplate @relation(fields: [templateId], references: [id])
+  locationId     String
+  location       Location    @relation(fields: [locationId], references: [id])
+  weekdays       Int[] // 1 = Monday … 7 = Sunday
+  quantity       Int
+  pickupFromTime String // HH:mm local
+  pickupToTime   String // HH:mm local
+  active         Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  offers         BoxOffer[]
+}
+
+model BoxOffer {
+  id         String      @id @default(cuid())
+  templateId String
+  template   BoxTemplate @relation(fields: [templateId], references: [id])
+  locationId String
+  location   Location    @relation(fields: [locationId], references: [id])
+  scheduleId String?
+  schedule   Schedule?   @relation(fields: [scheduleId], references: [id])
+  date       String // YYYY-MM-DD local
+  quantity   Int
+  sold       Int         @default(0) // reserved + paid boxes
+  priceKgs   Int
+  valueKgs   Int
+  pickupFrom DateTime
+  pickupTo   DateTime
+  status     OfferStatus @default(ACTIVE)
+  createdAt  DateTime    @default(now())
+
+  orders Order[]
+
+  @@unique([scheduleId, date])
+  @@index([date, status])
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  number         String      @unique
+  userId         String
+  user           User        @relation(fields: [userId], references: [id])
+  offerId        String
+  offer          BoxOffer    @relation(fields: [offerId], references: [id])
+  quantity       Int         @default(1)
+  amountKgs      Int
+  commissionKgs  Int
+  status         OrderStatus @default(PENDING_PAYMENT)
+  pickupCode     String
+  qrToken        String      @unique
+  reservedUntil  DateTime
+  paidAt         DateTime?
+  issuedAt       DateTime?
+  issuedById     String?
+  cancelledAt    DateTime?
+  cancelReason   String?
+  refundedKgs    Int         @default(0)
+  reminderSentAt DateTime?
+  createdAt      DateTime    @default(now())
+
+  payments Payment[]
+  review   Review?
+
+  @@index([userId, createdAt])
+  @@index([offerId, status])
+  @@index([status])
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  orderId     String
+  order       Order         @relation(fields: [orderId], references: [id])
+  provider    String
+  providerRef String        @unique
+  amountKgs   Int
+  status      PaymentStatus @default(PENDING)
+  refundedKgs Int           @default(0)
+  payUrl      String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Review {
+  id              String           @id @default(cuid())
+  orderId         String           @unique
+  order           Order            @relation(fields: [orderId], references: [id])
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  partnerId       String
+  partner         Partner          @relation(fields: [partnerId], references: [id])
+  rating          Int?
+  text            String           @default("")
+  photoUrl        String?
+  isComplaint     Boolean          @default(false)
+  complaintStatus ComplaintStatus?
+  resolution      String?
+  createdAt       DateTime         @default(now())
+}
+
+model Favorite {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  partnerId String
+  partner   Partner  @relation(fields: [partnerId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@id([userId, partnerId])
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  platform  String
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model Payout {
+  id         String       @id @default(cuid())
+  partnerId  String
+  partner    Partner      @relation(fields: [partnerId], references: [id])
+  periodFrom String // YYYY-MM-DD local, Monday
+  periodTo   String // YYYY-MM-DD local, Sunday
+  orders     Int
+  grossKgs   Int
+  commission Int
+  refundsKgs Int
+  netKgs     Int
+  status     PayoutStatus @default(PENDING)
+  paidAt     DateTime?
+  createdAt  DateTime     @default(now())
+
+  @@unique([partnerId, periodFrom])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String
+  data      Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+}

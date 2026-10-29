@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.local
+*.log
+.DS_Store
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
+apps/mobile/.expo/
+apps/mobile/ios/
+apps/mobile/android/
+apps/web/dist/
