@@ -141,11 +141,17 @@ export async function adminRoutes(app: FastifyInstance) {
     return partner;
   });
 
-  async function setStatus(partnerId: string, status: PartnerStatus, actorId: string, extra: Record<string, unknown> = {}) {
+  async function setStatus(
+    partnerId: string,
+    status: PartnerStatus,
+    action: string,
+    actorId: string,
+    extra: Record<string, unknown> = {},
+  ) {
     const partner = await prisma.partner.findUnique({ where: { id: partnerId } });
     if (!partner) throw notFound('partner');
     const updated = await prisma.partner.update({ where: { id: partnerId }, data: { status, ...extra } });
-    await audit(`partner.${status.toLowerCase()}`, 'Partner', partnerId, actorId, { from: partner.status, ...extra } as never);
+    await audit(`partner.${action}`, 'Partner', partnerId, actorId, { from: partner.status, ...extra } as never);
     return updated;
   }
 
@@ -159,7 +165,7 @@ export async function adminRoutes(app: FastifyInstance) {
       request.body ?? {},
     );
     const promoUntil = body.promoMonths ? new Date(Date.now() + body.promoMonths * 30 * 86_400_000) : null;
-    const partner = await setStatus(id, 'ACTIVE', currentUser(request).id, {
+    const partner = await setStatus(id, 'ACTIVE', 'approve', currentUser(request).id, {
       rejectReason: null,
       promoUntil,
       ...(body.commissionPct !== undefined ? { commissionPct: body.commissionPct } : {}),
@@ -171,7 +177,7 @@ export async function adminRoutes(app: FastifyInstance) {
   app.post('/admin/partners/:id/reject', { preHandler: requireAdmin }, async (request) => {
     const { id } = parse(idParam, request.params);
     const { reason } = parse(z.object({ reason: z.string().trim().min(3) }), request.body);
-    const partner = await setStatus(id, 'REJECTED', currentUser(request).id, { rejectReason: reason });
+    const partner = await setStatus(id, 'REJECTED', 'reject', currentUser(request).id, { rejectReason: reason });
     await notify(await partnerRecipients(id), 'partner_rejected', { reason });
     return partner;
   });
@@ -179,14 +185,14 @@ export async function adminRoutes(app: FastifyInstance) {
   app.post('/admin/partners/:id/suspend', { preHandler: requireAdmin }, async (request) => {
     const { id } = parse(idParam, request.params);
     const { reason } = parse(z.object({ reason: z.string().trim().min(3) }), request.body);
-    const partner = await setStatus(id, 'SUSPENDED', currentUser(request).id, { rejectReason: reason });
+    const partner = await setStatus(id, 'SUSPENDED', 'suspend', currentUser(request).id, { rejectReason: reason });
     await notify(await partnerRecipients(id), 'partner_suspended', { reason });
     return partner;
   });
 
   app.post('/admin/partners/:id/reactivate', { preHandler: requireAdmin }, async (request) => {
     const { id } = parse(idParam, request.params);
-    return setStatus(id, 'ACTIVE', currentUser(request).id, { rejectReason: null });
+    return setStatus(id, 'ACTIVE', 'reactivate', currentUser(request).id, { rejectReason: null });
   });
 
   app.patch('/admin/partners/:id/commission', { preHandler: requireAdmin }, async (request) => {
@@ -195,6 +201,7 @@ export async function adminRoutes(app: FastifyInstance) {
       z.object({ commissionPct: z.number().int().min(0).max(50), promoUntil: z.string().datetime().nullable().optional() }),
       request.body,
     );
+    if (!(await prisma.partner.findUnique({ where: { id } }))) throw notFound('partner');
     const partner = await prisma.partner.update({
       where: { id },
       data: {
@@ -347,6 +354,9 @@ export async function adminRoutes(app: FastifyInstance) {
 
   app.post('/admin/payouts/:id/mark-paid', { preHandler: requireAdmin }, async (request) => {
     const { id } = parse(idParam, request.params);
+    const existing = await prisma.payout.findUnique({ where: { id } });
+    if (!existing) throw notFound('payout');
+    if (existing.status === 'PAID') throw new AppError('payout_already_paid', 409);
     const payout = await prisma.payout.update({ where: { id }, data: { status: 'PAID', paidAt: new Date() } });
     await audit('payout.paid', 'Payout', id, currentUser(request).id, { netKgs: payout.netKgs });
     return payout;
@@ -356,16 +366,20 @@ export async function adminRoutes(app: FastifyInstance) {
   app.get('/admin/users', async (request) => {
     const q = parse(pagination.extend({ q: z.string().trim().optional() }), request.query);
     const phone = q.q ? normalizePhone(q.q) : null;
-    const items = await prisma.user.findMany({
-      where: q.q
-        ? { OR: [...(phone ? [{ phone }] : []), { name: { contains: q.q, mode: 'insensitive' as const } }] }
-        : {},
-      select: { id: true, phone: true, name: true, role: true, partnerId: true, createdAt: true, deletedAt: true },
-      orderBy: { createdAt: 'desc' },
-      take: q.limit,
-      skip: q.offset,
-    });
-    return { items };
+    const where = q.q
+      ? { OR: [...(phone ? [{ phone }] : []), { name: { contains: q.q, mode: 'insensitive' as const } }] }
+      : {};
+    const [items, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: { id: true, phone: true, name: true, role: true, partnerId: true, createdAt: true, deletedAt: true },
+        orderBy: { createdAt: 'desc' },
+        take: q.limit,
+        skip: q.offset,
+      }),
+      prisma.user.count({ where }),
+    ]);
+    return { items, total };
   });
 
   app.patch('/admin/users/:id/role', { preHandler: requireAdmin }, async (request) => {

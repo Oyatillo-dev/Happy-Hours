@@ -84,6 +84,7 @@ export function buyerOrderDto(
           rating: order.review.rating,
           text: order.review.text,
           isComplaint: order.review.isComplaint,
+          complaintText: order.review.complaintText,
           complaintStatus: order.review.complaintStatus,
           resolution: order.review.resolution,
         }

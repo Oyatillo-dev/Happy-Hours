@@ -328,6 +328,52 @@ describe('after pickup', () => {
   });
 });
 
+describe('regressions', () => {
+  it('keeps the review text when a complaint is filed and reports re-issue by code', async () => {
+    const ctx = await setupPartner(app);
+    const offer = await createOffer(app, ctx, { quantity: 2, startInMin: -5 });
+    const buyer = await login(app);
+    const b = api(app, buyer.token);
+    const o = (await b.post('/orders', { offerId: offer.id })).json();
+    await pay(app, o.id);
+    const { pickupCode } = (await b.get(`/orders/${o.id}`)).json();
+    const owner = api(app, ctx.owner.token);
+    expect((await owner.post('/partner/orders/issue', { code: pickupCode })).statusCode).toBe(200);
+    expect((await owner.post('/partner/orders/issue', { code: pickupCode })).json().error.code).toBe('already_issued');
+
+    await b.post(`/orders/${o.id}/review`, { rating: 2, text: 'Мало еды' });
+    const after = (await b.post(`/orders/${o.id}/complaint`, { text: 'Булочки были чёрствые' })).json();
+    expect(after.review).toMatchObject({ rating: 2, text: 'Мало еды', complaintText: 'Булочки были чёрствые' });
+    const page = (await api(app).get(`/partners/${ctx.partner.id}`)).json();
+    expect(page.reviews).toHaveLength(1);
+  });
+
+  it('limits location-bound staff to their own location', async () => {
+    const ctx = await setupPartner(app);
+    const owner = api(app, ctx.owner.token);
+    const other = (
+      await owner.post('/partner/locations', {
+        name: 'Вторая', address: 'ул. Киевская, 2', lat: 42.87, lng: 74.59, openTime: '00:00', closeTime: '23:59',
+      })
+    ).json();
+    const staffPhone = '+996555777001';
+    await owner.post('/partner/staff', { phone: staffPhone, name: 'Кассир', locationId: other.id });
+    const staff = api(app, (await login(app, staffPhone)).token);
+    const offer = await createOffer(app, ctx); // at the first location
+    expect((await staff.patch(`/partner/offers/${offer.id}`, { quantity: 1 })).statusCode).toBe(404);
+    expect((await staff.post(`/partner/offers/${offer.id}/cancel`, { reason: 'тест' })).statusCode).toBe(404);
+    expect((await staff.get('/partner/stats')).statusCode).toBe(403);
+  });
+
+  it('treats favorites=false as false', async () => {
+    const ctx = await setupPartner(app);
+    await createOffer(app, ctx, { startInMin: 60 });
+    const b = api(app, (await login(app)).token);
+    expect((await b.get('/offers?favorites=false')).json().items).toHaveLength(1);
+    expect((await b.get('/offers?favorites=true')).json().items).toHaveLength(0);
+  });
+});
+
 describe('schedules', () => {
   it('generates offers from a recurring schedule once per day', async () => {
     const ctx = await setupPartner(app);

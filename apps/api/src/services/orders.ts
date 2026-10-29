@@ -294,10 +294,11 @@ export async function issueOrder(
     order = await prisma.order.findFirst({
       where: {
         pickupCode: input.code,
-        status: { in: ['PAID', 'READY'] },
+        status: { in: ['PAID', 'READY', 'ISSUED'] },
         offer: { ...scope.offer, pickupTo: { gte: new Date(now.getTime() - hours(12)) } },
       },
-      orderBy: { createdAt: 'desc' },
+      // an active order wins over an already issued one with the same code
+      orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
       include: orderInclude,
     });
   } else {

@@ -16,6 +16,9 @@ export function distanceKm(a: { lat: number; lng: number }, b: { lat: number; ln
   return 2 * 6371 * Math.asin(Math.sqrt(h));
 }
 
+// z.coerce.boolean() would turn the string "false" into true
+const queryBool = z.enum(['true', 'false', '1', '0']).transform((v) => v === 'true' || v === '1');
+
 const feedQuery = z.object({
   lat: z.coerce.number().min(-90).max(90).optional(),
   lng: z.coerce.number().min(-180).max(180).optional(),
@@ -25,8 +28,8 @@ const feedQuery = z.object({
   pickupAfter: hhmm.optional(),
   pickupBefore: hhmm.optional(),
   q: z.string().trim().max(60).optional(),
-  favorites: z.coerce.boolean().optional(),
-  includeSoldOut: z.coerce.boolean().default(false),
+  favorites: queryBool.optional(),
+  includeSoldOut: queryBool.default('false'),
   sort: z.enum(['distance', 'price', 'pickup']).default('pickup'),
 });
 
@@ -107,7 +110,7 @@ export async function offerRoutes(app: FastifyInstance) {
         orderBy: { pickupFrom: 'asc' },
       }),
       prisma.review.findMany({
-        where: { partnerId: id, rating: { not: null }, isComplaint: false },
+        where: { partnerId: id, rating: { not: null } },
         orderBy: { createdAt: 'desc' },
         take: 20,
         include: { user: { select: { name: true } } },

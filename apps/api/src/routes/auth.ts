@@ -77,6 +77,7 @@ export async function authRoutes(app: FastifyInstance) {
           where: { id: existing.id },
           data: {
             ...(body.name && !existing.name ? { name: body.name } : {}),
+            ...(body.language ? { language: body.language } : {}),
             ...(isAdmin && existing.role !== 'ADMIN' ? { role: 'ADMIN' } : {}),
           },
           include: { partner: true },

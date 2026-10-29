@@ -39,10 +39,17 @@ const scheduleSchema = z.object({
   active: z.boolean().default(true),
 });
 
+const normalizeWeekdays = (days: number[]) => [...new Set(days)].sort((a, b) => a - b);
+
 /** Staff bound to a location only see that location. */
 function locationScope(request: FastifyRequest) {
   const user = currentUser(request);
   return user.role === 'PARTNER_STAFF' && user.locationId ? { id: user.locationId } : {};
+}
+
+function staffLocation(request: FastifyRequest) {
+  const user = currentUser(request);
+  return user.role === 'PARTNER_STAFF' ? user.locationId : null;
 }
 
 export async function partnerRoutes(app: FastifyInstance) {
@@ -216,7 +223,7 @@ export async function partnerRoutes(app: FastifyInstance) {
     if (!location) throw notFound('location');
     if (!template) throw notFound('template');
     validateWindow(location, body.pickupFromTime, body.pickupToTime);
-    const s = await prisma.schedule.create({ data: { ...body, weekdays: [...new Set(body.weekdays)].sort() } });
+    const s = await prisma.schedule.create({ data: { ...body, weekdays: normalizeWeekdays(body.weekdays) } });
     return reply.status(201).send(s);
   });
 
@@ -229,7 +236,10 @@ export async function partnerRoutes(app: FastifyInstance) {
     });
     if (!current) throw notFound('schedule');
     validateWindow(current.location, body.pickupFromTime ?? current.pickupFromTime, body.pickupToTime ?? current.pickupToTime);
-    return prisma.schedule.update({ where: { id }, data: body });
+    return prisma.schedule.update({
+      where: { id },
+      data: { ...body, ...(body.weekdays ? { weekdays: normalizeWeekdays(body.weekdays) } : {}) },
+    });
   });
 
   app.delete('/partner/schedules/:id', { preHandler: requireOwner }, async (request) => {
@@ -277,13 +287,13 @@ export async function partnerRoutes(app: FastifyInstance) {
   app.patch('/partner/offers/:id', { preHandler: requirePartner }, async (request) => {
     const { id } = parse(idParam, request.params);
     const { quantity } = parse(z.object({ quantity: z.number().int().min(0).max(500) }), request.body);
-    return updateOfferQuantity(partnerIdOf(request), id, quantity);
+    return updateOfferQuantity(partnerIdOf(request), id, quantity, staffLocation(request));
   });
 
   app.post('/partner/offers/:id/cancel', { preHandler: requirePartner }, async (request) => {
     const { id } = parse(idParam, request.params);
     const { reason } = parse(z.object({ reason: z.string().trim().min(3).max(300) }), request.body);
-    return cancelOffer(partnerIdOf(request), id, currentUser(request).id, reason);
+    return cancelOffer(partnerIdOf(request), id, currentUser(request).id, reason, staffLocation(request));
   });
 
   // ---------- orders & pickup (FR-P07, FR-P08) ----------
@@ -433,6 +443,7 @@ export async function partnerRoutes(app: FastifyInstance) {
         author: r.user.name ?? '',
         rating: r.rating,
         text: r.text,
+        complaintText: r.complaintText,
         photoUrl: r.photoUrl,
         isComplaint: r.isComplaint,
         complaintStatus: r.complaintStatus,

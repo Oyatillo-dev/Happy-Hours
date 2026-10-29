@@ -283,7 +283,8 @@ model Review {
   partner         Partner          @relation(fields: [partnerId], references: [id])
   rating          Int?
   text            String           @default("")
-  photoUrl        String?
+  complaintText   String?
+  photoUrl        String? // complaint photo
   isComplaint     Boolean          @default(false)
   complaintStatus ComplaintStatus?
   resolution      String?

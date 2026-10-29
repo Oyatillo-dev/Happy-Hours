@@ -88,8 +88,10 @@ export async function publishOffer(
 }
 
 /** FR-P05: quantity can change during the day but never below what is already sold. */
-export async function updateOfferQuantity(partnerId: string, offerId: string, quantity: number) {
-  const offer = await prisma.boxOffer.findFirst({ where: { id: offerId, location: { partnerId } } });
+export async function updateOfferQuantity(partnerId: string, offerId: string, quantity: number, locationId?: string | null) {
+  const offer = await prisma.boxOffer.findFirst({
+    where: { id: offerId, location: { partnerId, ...(locationId ? { id: locationId } : {}) } },
+  });
   if (!offer) throw notFound('offer');
   if (offer.status !== 'ACTIVE') throw new AppError('offer_cancelled', 409);
   const res = await prisma.boxOffer.updateMany({
@@ -101,8 +103,16 @@ export async function updateOfferQuantity(partnerId: string, offerId: string, qu
 }
 
 /** FR-P06 */
-export async function cancelOffer(partnerId: string, offerId: string, actorId: string, reason: string) {
-  const offer = await prisma.boxOffer.findFirst({ where: { id: offerId, location: { partnerId } } });
+export async function cancelOffer(
+  partnerId: string,
+  offerId: string,
+  actorId: string,
+  reason: string,
+  locationId?: string | null,
+) {
+  const offer = await prisma.boxOffer.findFirst({
+    where: { id: offerId, location: { partnerId, ...(locationId ? { id: locationId } : {}) } },
+  });
   if (!offer) throw notFound('offer');
   if (offer.status === 'CANCELLED') return offer;
   await prisma.boxOffer.update({ where: { id: offerId }, data: { status: 'CANCELLED' } });

@@ -85,7 +85,7 @@ export async function orderRoutes(app: FastifyInstance) {
     await prisma.review.upsert({
       where: { orderId: id },
       create: { orderId: id, userId, partnerId, rating: body.rating, text: body.text },
-      update: { rating: body.rating, text: body.text || undefined },
+      update: { rating: body.rating, text: body.text },
     });
     await refreshPartnerRating(partnerId);
     return buyerOrderDto(await loadOwnOrder(userId, id));
@@ -109,7 +109,7 @@ export async function orderRoutes(app: FastifyInstance) {
     const data = {
       isComplaint: true,
       complaintStatus: 'OPEN' as const,
-      text: body.text,
+      complaintText: body.text,
       photoUrl: body.photoUrl,
     };
     await prisma.review.upsert({
