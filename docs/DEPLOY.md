@@ -28,7 +28,24 @@ API — постоянно работающий сервер: раз в мину
 
 ## 3. Мобильное приложение
 
-В сборке приложения укажите `EXPO_PUBLIC_API_URL` = адрес API на Render. Для теста в Expo Go: `EXPO_PUBLIC_API_URL=https://… npx expo start`.
+**Тестирование через Expo Go без компьютера (EAS Update).** Проект на expo.dev: `@oyatillo_s/happy-hours`, канал `preview`. Адрес API берётся из переменной `EXPO_PUBLIC_API_URL` окружения `preview` на expo.dev.
+
+Тестерам — ссылка (или QR с ней), открывать в Expo Go:
+
+```
+exp://u.expo.dev/7b1d4887-8d8d-4012-9e09-c4834dae8358?channel-name=preview&runtime-version=exposdk:58.0.0
+```
+
+Выложить новую версию (нужен вход в Expo: `npx eas-cli login` или `EXPO_TOKEN`):
+
+```bash
+cd apps/mobile
+npm run update:preview -- --message "что изменилось"
+```
+
+Тестеры получают её при следующем запуске приложения (иногда — со второго запуска). Когда выйдет Expo Go на новом SDK, проект нужно обновить до того же SDK и выложить заново.
+
+Для разработки на своём компьютере: `EXPO_PUBLIC_API_URL=https://… npx expo start`.
 
 ## Демо-данные (по желанию)
 

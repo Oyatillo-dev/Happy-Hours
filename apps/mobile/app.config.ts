@@ -1,11 +1,13 @@
 import type { ExpoConfig } from 'expo/config';
 
 const BRAND = '#1f8a4c';
-const easProjectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
+// EAS project on expo.dev (account oyatillo_s); used for EAS Update and push tokens.
+const easProjectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID ?? '7b1d4887-8d8d-4012-9e09-c4834dae8358';
 
 const config: ExpoConfig = {
   name: 'Happy Hours',
   slug: 'happy-hours',
+  owner: 'oyatillo_s',
   scheme: 'happyhours',
   version: '1.0.0',
   orientation: 'portrait',
@@ -70,11 +72,15 @@ const config: ExpoConfig = {
       },
     ],
   ],
+  // EAS Update: testers open published builds of the JS in Expo Go, so the runtime is tied to
+  // the Expo SDK version that Expo Go ships with.
+  runtimeVersion: { policy: 'sdkVersion' },
+  updates: { url: `https://u.expo.dev/${easProjectId}` },
   experiments: {
     typedRoutes: false,
   },
   extra: {
-    ...(easProjectId ? { eas: { projectId: easProjectId } } : {}),
+    eas: { projectId: easProjectId },
   },
 };
 
