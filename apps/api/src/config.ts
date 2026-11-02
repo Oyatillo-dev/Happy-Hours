@@ -36,6 +36,12 @@ const schema = z.object({
     .string()
     .default('false')
     .transform((v) => v === 'true'),
+  // Cloudflare R2 for uploaded photos; without it they are kept on the API's own disk.
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET: z.string().optional(),
+  R2_PUBLIC_URL: z.string().url().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -78,7 +84,26 @@ export const config = {
     .filter(Boolean),
   corsOrigins: parsed.data.CORS_ORIGINS.split(',').map((o) => o.trim()),
   isProd: parsed.data.NODE_ENV === 'production',
+  r2: r2Config(parsed.data),
 };
+
+/** All five R2 settings, or none (local disk). A partial set is a mistake worth stopping for. */
+function r2Config(env: z.infer<typeof schema>) {
+  const values = {
+    accountId: env.R2_ACCOUNT_ID,
+    accessKeyId: env.R2_ACCESS_KEY_ID,
+    secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+    bucket: env.R2_BUCKET,
+    publicUrl: env.R2_PUBLIC_URL?.replace(/\/+$/, ''),
+  };
+  const set = Object.values(values).filter(Boolean).length;
+  if (set === 0) return null;
+  if (set < 5) {
+    console.error('Invalid environment: set all of R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL or none');
+    process.exit(1);
+  }
+  return values as { [K in keyof typeof values]: string };
+}
 
 // Business constants from the SRS (section 3.4).
 export const rules = {

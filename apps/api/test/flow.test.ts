@@ -552,3 +552,38 @@ describe('pre-launch fixes', () => {
     expect(csv).toContain('"160"');
   });
 });
+
+describe('uploads', () => {
+  const multipart = (filename: string, type: string, body: Buffer) => {
+    const boundary = 'hhboundary';
+    const head = Buffer.from(
+      `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${filename}"\r\nContent-Type: ${type}\r\n\r\n`,
+    );
+    return {
+      payload: Buffer.concat([head, body, Buffer.from(`\r\n--${boundary}--\r\n`)]),
+      headers: { 'content-type': `multipart/form-data; boundary=${boundary}` },
+    };
+  };
+
+  it('stores a photo and rejects other file types', async () => {
+    const buyer = await login(app);
+    const png = multipart('box.png', 'image/png', Buffer.from('89504e470d0a1a0a', 'hex'));
+    const ok = await app.inject({
+      method: 'POST',
+      url: '/uploads',
+      payload: png.payload,
+      headers: { ...png.headers, authorization: `Bearer ${buyer.token}` },
+    });
+    expect(ok.statusCode).toBe(200);
+    expect(ok.json().url).toMatch(/\/uploads\/[0-9a-f]{24}\.png$/);
+
+    const txt = multipart('a.txt', 'text/plain', Buffer.from('hello'));
+    const bad = await app.inject({
+      method: 'POST',
+      url: '/uploads',
+      payload: txt.payload,
+      headers: { ...txt.headers, authorization: `Bearer ${buyer.token}` },
+    });
+    expect(bad.json().error.code).toBe('unsupported_file_type');
+  });
+});
