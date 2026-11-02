@@ -1,6 +1,6 @@
 # Render Blueprint: Render → New → Blueprint → this repository.
-# Creates the PostgreSQL database and the API (from apps/api/Dockerfile) with a disk for
-# uploaded photos. The cabinet (apps/web) is deployed separately on Vercel.
+# Creates the PostgreSQL database and the API (from apps/api/Dockerfile). Photos are stored in
+# Cloudflare R2. The cabinet (apps/web) is deployed separately on Vercel.
 databases:
   - name: happy-hours-db
     plan: basic-256mb
@@ -20,16 +20,12 @@ services:
     dockerContext: .
     healthCheckPath: /health
     autoDeployTrigger: commit
-    # Redeploy only when the API changes (each deploy briefly stops a service with a disk).
+    # Redeploy only when the API changes.
     buildFilter:
       paths:
         - apps/api/**
         - package.json
         - package-lock.json
-    disk:
-      name: uploads
-      mountPath: /app/apps/api/uploads
-      sizeGB: 1
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -56,3 +52,15 @@ services:
         value: "true"
       - key: SHOW_OTP_CODES
         value: "true"
+      # Uploaded photos in Cloudflare R2 (bucket with a public r2.dev URL). The two keys are
+      # secrets: enter them in the Render dashboard (Environment), never in this file.
+      - key: R2_ACCOUNT_ID
+        value: 4c4f8bc969523e39da59561b9415cceb
+      - key: R2_BUCKET
+        value: happy-hours-uploads
+      - key: R2_PUBLIC_URL
+        value: https://pub-c9d135589bad4bc9b1256bf9a072594f.r2.dev
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false

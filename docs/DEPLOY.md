@@ -10,7 +10,9 @@ API — постоянно работающий сервер: раз в мину
 2. Render покажет, что создаст: базу `happy-hours-db` и сервис `happy-hours-api`. Нажмите **Deploy Blueprint**.
 3. Через 5–10 минут сервис станет **Live**. Его адрес вида `https://happy-hours-api.onrender.com` — проверка: `<адрес>/health` отвечает `{"ok":true,…}`.
 
-Что Render настроит сам: базу и `DATABASE_URL`, случайные `JWT_SECRET` и `PAYMENT_WEBHOOK_SECRET`, диск для фото (`/app/apps/api/uploads`), `PUBLIC_URL` (из адреса сервиса), миграции базы при каждом запуске.
+Что Render настроит сам: базу и `DATABASE_URL`, случайные `JWT_SECRET` и `PAYMENT_WEBHOOK_SECRET`, `PUBLIC_URL` (из адреса сервиса), миграции базы при каждом запуске.
+
+**Фото** хранятся в Cloudflare R2 (бакет `happy-hours-uploads` с публичным адресом `r2.dev`). Ключи R2 — `R2_ACCESS_KEY_ID` и `R2_SECRET_ACCESS_KEY` (R2 → Manage API tokens, права Object Read & Write на этот бакет) — вводятся вручную в **Environment** сервиса; Render спросит их при создании из Blueprint.
 
 Тарифы в `render.yaml`: сервис **Starter** и база **Basic-256mb** (~$13/мес вместе). Бесплатный сервис засыпает без запросов, и ежеминутные задачи перестают выполняться; бесплатная база удаляется через 30 дней — для продаж они не подходят.
 
