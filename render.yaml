@@ -20,6 +20,12 @@ services:
     dockerContext: .
     healthCheckPath: /health
     autoDeployTrigger: commit
+    # Redeploy only when the API changes (each deploy briefly stops a service with a disk).
+    buildFilter:
+      paths:
+        - apps/api/**
+        - package.json
+        - package-lock.json
     disk:
       name: uploads
       mountPath: /app/apps/api/uploads

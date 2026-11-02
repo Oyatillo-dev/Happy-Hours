@@ -115,6 +115,7 @@ export const ky: Dict = {
     payMethods: 'ELQR (MBank, О!Деньги, Элсом…) же карта',
     pay: '{sum} төлөө',
     payAgain: 'Төлөмдү кайра ачуу',
+    paymentTitle: 'Төлөм',
     checkingPayment: 'Төлөм текшерилүүдө…',
     paymentNotFinished: 'Төлөм аяктаган жок. Брондун мөөнөтү бүткөнгө чейин кайра аракет кылсаңыз болот.',
     showAtPickup: 'Кассада QR-кодду көрсөтүңүз же кодду айтыңыз',

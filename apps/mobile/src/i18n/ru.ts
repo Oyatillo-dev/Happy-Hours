@@ -112,6 +112,7 @@ export const ru = {
     payMethods: 'ELQR (MBank, О!Деньги, Элсом…) или карта',
     pay: 'Оплатить {sum}',
     payAgain: 'Открыть оплату снова',
+    paymentTitle: 'Оплата',
     checkingPayment: 'Проверяем оплату…',
     paymentNotFinished: 'Оплата не завершена. Можно попробовать ещё раз, пока действует бронь.',
     showAtPickup: 'Покажите QR-код или назовите код на кассе',

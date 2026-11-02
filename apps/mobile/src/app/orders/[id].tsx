@@ -11,6 +11,7 @@ import type { Order } from '@/api/types';
 import { useAuth } from '@/auth/AuthContext';
 import { LoginPrompt } from '@/components/LoginPrompt';
 import { OfferPhoto } from '@/components/OfferPhoto';
+import { PaymentSheet } from '@/components/PaymentSheet';
 import { statusTone } from '@/components/OrderRow';
 import { Badge, Banner, Button, Card, ErrorView, Loading, Row, Stars } from '@/components/ui';
 import { fmt, useI18n } from '@/i18n';
@@ -36,6 +37,8 @@ export default function OrderScreen() {
   const startPayment = useStartPayment();
   const cancel = useCancelOrder();
   const [payError, setPayError] = useState<string | null>(null);
+  // Bank page shown inside the app (native only); null when closed.
+  const [payPage, setPayPage] = useState<string | null>(null);
   const autoPayDone = useRef(false);
 
   const order = query.data?.data;
@@ -51,14 +54,14 @@ export default function OrderScreen() {
           // No custom-scheme redirect on web: open the bank page in a new tab and poll.
           await WebBrowser.openBrowserAsync(url);
         } else {
-          // Our own deep link: happyhours://orders/{id} in a build, exp://…/--/orders/{id} in Expo Go.
-          // The bank page sends the buyer there after paying, which closes the session.
+          // Our own deep link (happyhours://orders/{id}, exp://…/--/orders/{id} in Expo Go): the bank
+          // page leads there after paying, and the in-app sheet closes when it sees it.
           const returnUrl = Linking.createURL(`orders/${o.id}`);
-          const withReturn = url.includes('/mock-pay/')
-            ? `${url}${url.includes('?') ? '&' : '?'}return=${encodeURIComponent(returnUrl)}`
-            : url;
-          await WebBrowser.openAuthSessionAsync(withReturn, returnUrl);
-          await qc.invalidateQueries({ queryKey: keys.order(o.id) });
+          setPayPage(
+            url.includes('/mock-pay/')
+              ? `${url}${url.includes('?') ? '&' : '?'}return=${encodeURIComponent(returnUrl)}`
+              : url,
+          );
         }
       } catch (e) {
         setAwaitingUntil(0);
@@ -77,10 +80,18 @@ export default function OrderScreen() {
     }
   }, [pay, order, openPayment, query.data?.fromCache]);
 
-  // Stop polling once the status changed.
+  // Stop polling, and close the bank page, once the status changed.
   useEffect(() => {
-    if (order && order.status !== 'PENDING_PAYMENT' && awaitingUntil) setAwaitingUntil(0);
+    if (order && order.status !== 'PENDING_PAYMENT') {
+      if (awaitingUntil) setAwaitingUntil(0);
+      setPayPage(null);
+    }
   }, [order, awaitingUntil]);
+
+  const closePayPage = useCallback(() => {
+    setPayPage(null);
+    void qc.invalidateQueries({ queryKey: keys.order(id) });
+  }, [qc, id]);
 
   // Reservation ran out while the screen is open → reload to get EXPIRED.
   const reservedLeft = order ? new Date(order.reservedUntil).getTime() - now : 0;
@@ -119,6 +130,7 @@ export default function OrderScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <Stack.Screen options={{ title: fmt(t.order.title, { number: order.number }) }} />
+      <PaymentSheet url={payPage} onClose={closePayPage} />
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={
