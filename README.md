@@ -35,7 +35,9 @@ npm run dev:web                  # http://localhost:5173
 cd apps/mobile && npm install && npx expo start
 ```
 
-Весь стек в Docker: `docker compose up --build` — API на `:4000`, веб на `:8080`.
+Весь стек в Docker: `cp .env.example .env`, впишите в `.env` случайные секреты (`openssl rand -hex 32`), затем `docker compose up --build` — API на `:4000`, веб на `:8080`.
+
+В режиме `production` API не запустится с короткими секретами или с тестовой оплатой: тестовая страница оплаты проводит заказ без денег. Для тестового сервера её можно явно разрешить через `ALLOW_MOCK_PAYMENTS=true`.
 
 ### Демо-аккаунты
 
@@ -63,10 +65,12 @@ npm run typecheck
 
 ## Что нужно сделать перед запуском в продакшен
 
-- [ ] **Платежи.** Подписать договор эквайринга с банком (MBank, Optima, Demir и др.) и написать адаптер `PaymentProvider` в [`apps/api/src/providers/payments.ts`](apps/api/src/providers/payments.ts). Сейчас работает тестовая страница оплаты.
-- [ ] **SMS.** Подключить местного SMS-агрегатора в [`apps/api/src/providers/sms.ts`](apps/api/src/providers/sms.ts).
+- [ ] **Платежи.** Подписать договор эквайринга / ELQR с банком (MBank, О!Банк, Бакай Банк и др.) и написать адаптер `PaymentProvider` в [`apps/api/src/providers/payments.ts`](apps/api/src/providers/payments.ts). Возврат должен передавать в банк `refundId` как ключ идемпотентности. Сейчас работает тестовая страница оплаты; в `production` API без настоящего банка не запустится.
+- [ ] **SMS.** Подключить Nikita.kg в [`apps/api/src/providers/sms.ts`](apps/api/src/providers/sms.ts). Без него в `production` никто не сможет войти.
+- [ ] **Документы в приложении.** Опубликовать оферту и политику конфиденциальности и дать на них ссылки на экране входа — без ссылки на политику App Store и Google Play приложение не примут.
 - [ ] **Push.** Создать проект EAS и указать `projectId` в мобильном приложении; на сервере `PUSH_PROVIDER=expo`.
 - [ ] **Файлы.** Перенести загрузки с локального диска в S3-совместимое хранилище.
 - [ ] **Юридическое.** Проверить с юристом фискализацию (ИС ЭККМ ГНС), договор-оферту с партнёрами и хранение персональных данных.
 - [ ] **Переводы.** Кыргызские тексты — черновик, их должен вычитать носитель языка.
-- [ ] **Секреты.** Длинные случайные `JWT_SECRET` и `PAYMENT_WEBHOOK_SECRET`, свой список `ADMIN_PHONES`.
+- [ ] **Секреты.** Длинные случайные `JWT_SECRET` и `PAYMENT_WEBHOOK_SECRET` (32+ символа, иначе API в `production` не запустится), свой список `ADMIN_PHONES`.
+- [ ] **Сервер.** Домен с HTTPS (без него не работает камера в кабинете), `PUBLIC_URL` и `CORS_ORIGINS` под домен, `TRUST_PROXY=1` за nginx.

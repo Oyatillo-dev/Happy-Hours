@@ -9,7 +9,8 @@ import { AppError, notFound } from '../../lib/errors.js';
 import { addDays, localDate, weekStart } from '../../lib/time.js';
 import { idParam, isoDate, pagination, parse } from '../../lib/validate.js';
 import { notify, partnerRecipients } from '../../services/notifications.js';
-import { refundOrder } from '../../services/orders.js';
+import { cancelUpcomingOffers } from '../../services/offers.js';
+import { REFUND_STUCK_ATTEMPTS, refundOrder } from '../../services/orders.js';
 import { computePayouts, payoutsCsv } from '../../services/payouts.js';
 
 const ORDER_STATUSES = [
@@ -33,7 +34,7 @@ export async function adminRoutes(app: FastifyInstance) {
     const to = q.to ?? localDate();
     const from = q.from ?? addDays(to, -29);
     const dateRange = { gte: from, lte: to };
-    const [offers, orders, partners, buyers, openComplaints] = await Promise.all([
+    const [offers, orders, partners, buyers, openComplaints, pendingRefunds, stuckRefunds] = await Promise.all([
       prisma.boxOffer.findMany({ where: { date: dateRange, status: 'ACTIVE' }, select: { date: true, quantity: true } }),
       prisma.order.findMany({
         where: { offer: { date: dateRange }, status: { in: ['PAID', 'READY', 'ISSUED', 'NO_SHOW', 'REFUNDED'] } },
@@ -50,6 +51,8 @@ export async function adminRoutes(app: FastifyInstance) {
       prisma.partner.groupBy({ by: ['status'], _count: true }),
       prisma.user.count({ where: { role: 'BUYER', deletedAt: null } }),
       prisma.review.count({ where: { isComplaint: true, complaintStatus: 'OPEN' } }),
+      prisma.refund.aggregate({ where: { status: 'PENDING' }, _count: true, _sum: { amountKgs: true } }),
+      prisma.refund.count({ where: { status: 'PENDING', attempts: { gte: REFUND_STUCK_ATTEMPTS } } }),
     ]);
     const daily = new Map<string, { date: string; orders: number; gmvKgs: number; listed: number; sold: number }>();
     const day = (date: string) => {
@@ -94,6 +97,12 @@ export async function adminRoutes(app: FastifyInstance) {
       partnersByStatus: Object.fromEntries(partners.map((p) => [p.status, p._count])),
       buyers,
       openComplaints,
+      // Refunds the bank has not confirmed yet; "stuck" ones failed several times in a row.
+      pendingRefunds: {
+        count: pendingRefunds._count,
+        amountKgs: pendingRefunds._sum.amountKgs ?? 0,
+        stuck: stuckRefunds,
+      },
       daily: [...daily.values()].sort((a, b) => a.date.localeCompare(b.date)),
     };
   });
@@ -182,12 +191,18 @@ export async function adminRoutes(app: FastifyInstance) {
     return partner;
   });
 
+  // cancelOffers=false keeps paid orders valid: the partner can still hand them out.
   app.post('/admin/partners/:id/suspend', { preHandler: requireAdmin }, async (request) => {
     const { id } = parse(idParam, request.params);
-    const { reason } = parse(z.object({ reason: z.string().trim().min(3) }), request.body);
-    const partner = await setStatus(id, 'SUSPENDED', 'suspend', currentUser(request).id, { rejectReason: reason });
+    const { reason, cancelOffers } = parse(
+      z.object({ reason: z.string().trim().min(3), cancelOffers: z.boolean().default(true) }),
+      request.body,
+    );
+    const actorId = currentUser(request).id;
+    const partner = await setStatus(id, 'SUSPENDED', 'suspend', actorId, { rejectReason: reason });
+    const cancelled = cancelOffers ? await cancelUpcomingOffers(id, actorId) : { offers: 0, orders: 0 };
     await notify(await partnerRecipients(id), 'partner_suspended', { reason });
-    return partner;
+    return { ...partner, cancelled };
   });
 
   app.post('/admin/partners/:id/reactivate', { preHandler: requireAdmin }, async (request) => {
@@ -220,12 +235,14 @@ export async function adminRoutes(app: FastifyInstance) {
         q: z.string().trim().optional(),
         status: z.enum(ORDER_STATUSES).optional(),
         partnerId: z.string().optional(),
+        refunds: z.enum(['pending']).optional(),
       }),
       request.query,
     );
     const phone = q.q ? normalizePhone(q.q) : null;
     const where = {
       status: q.status,
+      ...(q.refunds ? { refunds: { some: { status: 'PENDING' as const } } } : {}),
       ...(q.partnerId ? { offer: { location: { partnerId: q.partnerId } } } : {}),
       ...(q.q
         ? { OR: [{ number: { contains: q.q.toUpperCase() } }, ...(phone ? [{ user: { phone } }] : [])] }
@@ -254,6 +271,7 @@ export async function adminRoutes(app: FastifyInstance) {
       include: {
         user: { select: { id: true, name: true, phone: true } },
         payments: true,
+        refunds: { orderBy: { createdAt: 'asc' } },
         review: true,
         offer: { include: { template: true, location: { include: { partner: true } } } },
       },

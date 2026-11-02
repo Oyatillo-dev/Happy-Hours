@@ -1,11 +1,12 @@
 import { mkdirSync } from 'node:fs';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
+import rateLimit from '@fastify/rate-limit';
 import fastifyStatic from '@fastify/static';
 import Fastify from 'fastify';
 import { config } from './config.js';
 import { prisma } from './db.js';
-import { errorHandler } from './lib/errors.js';
+import { AppError, errorHandler } from './lib/errors.js';
 import { adminRoutes } from './routes/admin/index.js';
 import { authRoutes } from './routes/auth.js';
 import { meRoutes } from './routes/me.js';
@@ -24,7 +25,8 @@ declare module 'fastify' {
 export async function buildApp() {
   const app = Fastify({
     logger: config.NODE_ENV === 'test' ? false : { level: 'info' },
-    trustProxy: true,
+    // trust X-Forwarded-For only for the configured number of proxy hops (0 = none)
+    trustProxy: (_address: string, hop: number) => hop < config.TRUST_PROXY,
   });
 
   // Keep the raw JSON body: payment webhooks are signed over the exact bytes.
@@ -43,6 +45,16 @@ export async function buildApp() {
   });
 
   await app.register(cors, { origin: config.isProd ? config.corsOrigins : true, credentials: true });
+  // Per-IP limits. Mobile carriers put many people behind one IP, so they are generous;
+  // the per-phone OTP limits in routes/auth.ts are the main protection. Tests call the app
+  // hundreds of times from one address, so the limits are off there.
+  if (config.NODE_ENV !== 'test') {
+    await app.register(rateLimit, {
+      max: 600,
+      timeWindow: '1 minute',
+      errorResponseBuilder: () => new AppError('too_many_requests', 429),
+    });
+  }
   await app.register(multipart);
   mkdirSync(UPLOAD_DIR, { recursive: true });
   await app.register(fastifyStatic, { root: UPLOAD_DIR, prefix: '/uploads/', decorateReply: false });

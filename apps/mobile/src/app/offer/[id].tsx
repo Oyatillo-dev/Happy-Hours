@@ -12,7 +12,7 @@ import { fmt, useI18n } from '@/i18n';
 import { notice } from '@/lib/confirm';
 import { discountPct, fmtMoney, fmtRating, fmtWindow } from '@/lib/format';
 import { openRoute } from '@/lib/route';
-import { colors, radius, space } from '@/theme';
+import { colors, fonts, radius, space } from '@/theme';
 
 const MAX_PER_ORDER = 3;
 
@@ -194,22 +194,22 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: space.lg,
     bottom: space.md,
-    backgroundColor: colors.brand,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: radius.sm,
+    backgroundColor: colors.accent,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: radius.pill,
   },
-  discountText: { color: colors.white, fontWeight: '800' },
+  discountText: { color: colors.text, fontWeight: '800' },
   partnerRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   partner: { fontSize: 15, fontWeight: '600', color: colors.brandDark },
-  title: { fontSize: 24, fontWeight: '800', color: colors.text },
+  title: { fontSize: 22, lineHeight: 28, fontFamily: fonts.display, color: colors.text },
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, alignItems: 'center', marginTop: 4 },
   rating: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   ratingText: { fontSize: 13, color: colors.muted, fontWeight: '600' },
   priceCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   priceLabel: { fontSize: 12, color: colors.faint },
   value: { fontSize: 16, color: colors.faint, textDecorationLine: 'line-through' },
-  price: { fontSize: 30, fontWeight: '800', color: colors.brandDark },
+  price: { fontSize: 28, fontFamily: fonts.display, color: colors.text },
   rowLabel: { fontSize: 13, color: colors.muted },
   rowValue: { fontSize: 16, color: colors.text, fontWeight: '500', marginTop: 1 },
   routeBtn: {

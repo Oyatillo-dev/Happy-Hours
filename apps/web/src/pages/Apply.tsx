@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { partnerApi } from '../api/endpoints';
-import { PARTNER_CATEGORIES, type PartnerCategory } from '../api/types';
+import { PARTNER_CATEGORIES, type PartnerCategory, type PartnerWithLocations } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { LangSwitch } from '../components/LangSwitch';
 import { ErrorBox, Field } from '../components/ui';
@@ -22,27 +23,49 @@ interface Draft {
 
 type Errors = Partial<Record<keyof Draft, DictKey>>;
 
-/** FR-P01: a logged-in buyer applies to become a partner. */
-export function ApplyPage() {
+/**
+ * FR-P01: a logged-in buyer applies to become a partner. With `rejected`, the owner of a
+ * rejected application corrects it inside the cabinet and sends it for review again.
+ */
+export function ApplyPage({ rejected }: { rejected?: PartnerWithLocations }) {
   const { t } = useI18n();
   const { me, logout } = useAuth();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [d, setD] = useState<Draft>({
-    brandName: '',
-    legalName: '',
-    inn: '',
-    category: 'BAKERY',
-    contactPhone: me?.phone ?? '+996',
-    bankName: '',
-    bankAccount: '',
+    brandName: rejected?.brandName ?? '',
+    legalName: rejected?.legalName ?? '',
+    inn: rejected?.inn ?? '',
+    category: rejected?.category ?? 'BAKERY',
+    contactPhone: rejected?.contactPhone ?? me?.phone ?? '+996',
+    bankName: rejected?.bankName ?? '',
+    bankAccount: rejected?.bankAccount ?? '',
   });
-  const [loc, setLoc] = useState({ ...emptyLocation });
+  const firstLocation = rejected?.locations[0];
+  const [loc, setLoc] = useState(
+    firstLocation
+      ? {
+          name: firstLocation.name,
+          address: firstLocation.address,
+          lat: String(firstLocation.lat),
+          lng: String(firstLocation.lng),
+          openTime: firstLocation.openTime,
+          closeTime: firstLocation.closeTime,
+        }
+      : { ...emptyLocation },
+  );
   const [errors, setErrors] = useState<Errors>({});
   const [locErrors, setLocErrors] = useState<LocationErrors>({});
 
   const apply = useMutation({
-    mutationFn: partnerApi.apply,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['me'] }),
+    mutationFn: rejected ? partnerApi.reapply : partnerApi.apply,
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ['me'] });
+      if (rejected) {
+        await qc.invalidateQueries({ queryKey: ['partner'] });
+        navigate('/p/status', { replace: true });
+      }
+    },
   });
 
   const set = (k: keyof Draft) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -76,6 +99,72 @@ export function ApplyPage() {
 
   const err = (k: keyof Draft) => (errors[k] ? t(errors[k]!) : null);
 
+  const form = (
+    <form className="stack" onSubmit={submit} noValidate>
+      <section className="card stack">
+        <h2>{t('apply.company')}</h2>
+        <div className="grid-2">
+          <Field label={t('apply.brandName')} error={err('brandName')}>
+            <input className="input" value={d.brandName} maxLength={80} onChange={set('brandName')} />
+          </Field>
+          <Field label={t('apply.legalName')} error={err('legalName')}>
+            <input className="input" value={d.legalName} maxLength={200} onChange={set('legalName')} />
+          </Field>
+          <Field label={t('apply.inn')} error={err('inn')}>
+            <input
+              className="input"
+              inputMode="numeric"
+              maxLength={14}
+              value={d.inn}
+              onChange={(e) => setD({ ...d, inn: e.target.value.replace(/\D/g, '') })}
+            />
+          </Field>
+          <Field label={t('apply.category')}>
+            <select className="input" value={d.category} onChange={set('category')}>
+              {PARTNER_CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {t(`partnerCategory.${c}` as DictKey)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label={t('apply.contactPhone')} error={err('contactPhone')}>
+            <input className="input" type="tel" value={d.contactPhone} onChange={set('contactPhone')} />
+          </Field>
+        </div>
+      </section>
+      <section className="card stack">
+        <h2>{t('apply.bank')}</h2>
+        <div className="grid-2">
+          <Field label={t('apply.bankName')} error={err('bankName')}>
+            <input className="input" value={d.bankName} maxLength={100} onChange={set('bankName')} />
+          </Field>
+          <Field label={t('apply.bankAccount')} error={err('bankAccount')}>
+            <input className="input" value={d.bankAccount} maxLength={34} onChange={set('bankAccount')} />
+          </Field>
+        </div>
+      </section>
+      <section className="card stack">
+        <h2>{t('apply.location')}</h2>
+        <LocationFields value={loc} onChange={setLoc} errors={locErrors} />
+      </section>
+      {apply.error && <ErrorBox error={apply.error} />}
+      <button className="btn btn-primary btn-lg" disabled={apply.isPending}>
+        {apply.isPending ? t('common.loading') : t(rejected ? 'apply.resubmit' : 'apply.submit')}
+      </button>
+    </form>
+  );
+
+  if (rejected) {
+    return (
+      <div className="stack">
+        <h1>{t('apply.reapplyTitle')}</h1>
+        {rejected.rejectReason && <p className="alert alert-error">{t('status.reason', { reason: rejected.rejectReason })}</p>}
+        {form}
+      </div>
+    );
+  }
+
   return (
     <div className="apply-page">
       <header className="topbar topbar-plain">
@@ -94,59 +183,7 @@ export function ApplyPage() {
         <h1>{t('apply.title')}</h1>
         <p className="muted">{t('apply.subtitle')}</p>
         <p className="alert alert-info">{t('apply.buyerNote', { phone: phone(me?.phone) })}</p>
-        <form className="stack" onSubmit={submit} noValidate>
-          <section className="card stack">
-            <h2>{t('apply.company')}</h2>
-            <div className="grid-2">
-              <Field label={t('apply.brandName')} error={err('brandName')}>
-                <input className="input" value={d.brandName} maxLength={80} onChange={set('brandName')} />
-              </Field>
-              <Field label={t('apply.legalName')} error={err('legalName')}>
-                <input className="input" value={d.legalName} maxLength={200} onChange={set('legalName')} />
-              </Field>
-              <Field label={t('apply.inn')} error={err('inn')}>
-                <input
-                  className="input"
-                  inputMode="numeric"
-                  maxLength={14}
-                  value={d.inn}
-                  onChange={(e) => setD({ ...d, inn: e.target.value.replace(/\D/g, '') })}
-                />
-              </Field>
-              <Field label={t('apply.category')}>
-                <select className="input" value={d.category} onChange={set('category')}>
-                  {PARTNER_CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {t(`partnerCategory.${c}` as DictKey)}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              <Field label={t('apply.contactPhone')} error={err('contactPhone')}>
-                <input className="input" type="tel" value={d.contactPhone} onChange={set('contactPhone')} />
-              </Field>
-            </div>
-          </section>
-          <section className="card stack">
-            <h2>{t('apply.bank')}</h2>
-            <div className="grid-2">
-              <Field label={t('apply.bankName')} error={err('bankName')}>
-                <input className="input" value={d.bankName} maxLength={100} onChange={set('bankName')} />
-              </Field>
-              <Field label={t('apply.bankAccount')} error={err('bankAccount')}>
-                <input className="input" value={d.bankAccount} maxLength={34} onChange={set('bankAccount')} />
-              </Field>
-            </div>
-          </section>
-          <section className="card stack">
-            <h2>{t('apply.location')}</h2>
-            <LocationFields value={loc} onChange={setLoc} errors={locErrors} />
-          </section>
-          {apply.error && <ErrorBox error={apply.error} />}
-          <button className="btn btn-primary btn-lg" disabled={apply.isPending}>
-            {apply.isPending ? t('common.loading') : t('apply.submit')}
-          </button>
-        </form>
+        {form}
       </main>
     </div>
   );

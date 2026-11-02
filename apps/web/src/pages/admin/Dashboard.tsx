@@ -88,9 +88,18 @@ export function DashboardPage() {
                   ))}
                 </ul>
               </section>
-              <Link to="/a/complaints" className={`card stat-link ${d.openComplaints ? 'attention' : ''}`}>
-                <Stat label={t('dash.openComplaints')} value={d.openComplaints} />
-              </Link>
+              <div className="stack">
+                <Link to="/a/complaints" className={`card stat-link ${d.openComplaints ? 'attention' : ''}`}>
+                  <Stat label={t('dash.openComplaints')} value={d.openComplaints} />
+                </Link>
+                <Link to="/a/orders?refunds=pending" className={`card stat-link ${d.pendingRefunds.stuck ? 'attention' : ''}`}>
+                  <Stat
+                    label={t('dash.pendingRefunds')}
+                    value={`${d.pendingRefunds.count} · ${money(d.pendingRefunds.amountKgs)}`}
+                    sub={d.pendingRefunds.stuck ? t('dash.stuckRefunds', { count: d.pendingRefunds.stuck }) : undefined}
+                  />
+                </Link>
+              </div>
             </div>
           </>
           );

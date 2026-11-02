@@ -192,6 +192,7 @@ function ActionModal({ partner, action, onClose }: { partner: AdminPartnerDetail
   const [promoMonths, setPromoMonths] = useState('3');
   const [promoUntil, setPromoUntil] = useState(partner.promoUntil ? today(new Date(partner.promoUntil)) : '');
   const [reason, setReason] = useState('');
+  const [cancelOffers, setCancelOffers] = useState(true);
 
   const pct = Number(commission);
   const months = Number(promoMonths);
@@ -203,7 +204,7 @@ function ActionModal({ partner, action, onClose }: { partner: AdminPartnerDetail
     mutationFn: async () => {
       if (action === 'approve') return adminApi.approve(partner.id, { commissionPct: pct, promoMonths: months });
       if (action === 'reject') return adminApi.reject(partner.id, reason.trim());
-      if (action === 'suspend') return adminApi.suspend(partner.id, reason.trim());
+      if (action === 'suspend') return adminApi.suspend(partner.id, reason.trim(), cancelOffers);
       return adminApi.commission(partner.id, {
         commissionPct: pct,
         promoUntil: promoUntil ? new Date(`${promoUntil}T23:59:59+06:00`).toISOString() : null,
@@ -269,6 +270,13 @@ function ActionModal({ partner, action, onClose }: { partner: AdminPartnerDetail
             <textarea className="input" rows={3} value={reason} placeholder={t('ap.reasonPh')} onChange={(e) => setReason(e.target.value)} />
           </Field>
         )}
+        {action === 'suspend' && (
+          <label className="row">
+            <input type="checkbox" checked={cancelOffers} onChange={(e) => setCancelOffers(e.target.checked)} />
+            <span>{t('ap.suspendCancelOffers')}</span>
+          </label>
+        )}
+        {action === 'suspend' && !cancelOffers && <p className="field-hint">{t('ap.suspendKeepOrders')}</p>}
         {run.error && <ErrorBox error={run.error} />}
       </div>
     </Modal>

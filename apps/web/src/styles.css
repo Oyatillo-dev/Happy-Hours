@@ -1,16 +1,18 @@
-/* Happy Hours web — single global stylesheet. Light + dark via CSS variables. */
+/* Happy Hours web — single global stylesheet. Light + dark via CSS variables.
+   Soft UI: surfaces share the page colour and stand out by light/dark shadow pairs
+   (--raise) or sink in (--inset) instead of borders. */
 :root {
-  --green: #1f8a4c;
-  --green-600: #17723e;
-  --green-50: #e8f4ec;
+  --green: #157a43;
+  --green-600: #0f5c32;
+  --green-50: #e2f0e5;
   --accent: #f2b33d;
-  --bg: #f4f6f3;
-  --surface: #ffffff;
-  --surface-2: #f8faf7;
-  --text: #1d2a1f;
-  --text-2: #5b6b5e;
-  --text-3: #8a978c;
-  --border: #e0e6e1;
+  --bg: #ecf0eb;
+  --surface: #f7faf6;
+  --surface-2: #e4e9e3;
+  --text: #18241b;
+  --text-2: #5a6b5e;
+  --text-3: #5f6f63;
+  --border: #d9e0d8;
   --red: #c8372d;
   --red-50: #fdeceb;
   --yellow: #a86b00;
@@ -18,14 +20,19 @@
   --blue: #2463b5;
   --blue-50: #e8f0fb;
   --gray-50: #eef1ee;
-  --shadow: 0 1px 2px rgb(0 0 0 / 4%), 0 4px 16px rgb(0 0 0 / 5%);
-  --radius: 14px;
-  --radius-sm: 10px;
+  --raise: 8px 8px 18px rgb(155 170 158 / 45%), -8px -8px 18px rgb(255 255 255 / 90%);
+  --raise-sm: 4px 4px 10px rgb(155 170 158 / 40%), -4px -4px 10px rgb(255 255 255 / 90%);
+  --inset: inset 3px 3px 8px rgb(155 170 158 / 40%), inset -3px -3px 8px rgb(255 255 255 / 90%);
+  --glow: 0 6px 16px rgb(21 122 67 / 35%);
+  --shadow: var(--raise);
+  --radius: 22px;
+  --radius-sm: 14px;
+  --font-display: 'Unbounded', 'Manrope', system-ui, sans-serif;
   --sidebar: 248px;
   --topbar: 56px;
   --bottombar: 64px;
   color-scheme: light;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 15px;
   line-height: 1.45;
   color: var(--text);
@@ -51,7 +58,10 @@
     --blue: #7fb0f0;
     --blue-50: #17263b;
     --gray-50: #262e28;
-    --shadow: 0 1px 2px rgb(0 0 0 / 30%);
+    --raise: 6px 6px 14px rgb(0 0 0 / 45%), -4px -4px 12px rgb(255 255 255 / 4%);
+    --raise-sm: 3px 3px 8px rgb(0 0 0 / 45%), -3px -3px 8px rgb(255 255 255 / 4%);
+    --inset: inset 3px 3px 8px rgb(0 0 0 / 45%), inset -3px -3px 8px rgb(255 255 255 / 4%);
+    --glow: 0 6px 16px rgb(0 0 0 / 40%);
     color-scheme: dark;
   }
 }
@@ -72,7 +82,9 @@ body {
   overflow-x: hidden;
 }
 h1 {
-  font-size: 24px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
   margin: 0 0 4px;
   line-height: 1.2;
 }
@@ -187,22 +199,23 @@ code {
   min-height: 40px;
   padding: 8px 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 0;
+  background: var(--bg);
+  box-shadow: var(--raise-sm);
   color: var(--text);
   font: inherit;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+  transition: background 0.15s, box-shadow 0.15s;
 }
 .btn:hover {
-  background: var(--surface-2);
+  background: var(--surface);
   text-decoration: none;
 }
 .btn:active {
-  transform: translateY(1px);
+  box-shadow: var(--inset);
 }
 .btn:disabled {
   opacity: 0.5;
@@ -217,15 +230,14 @@ code {
 }
 .btn-primary {
   background: var(--green);
-  border-color: var(--green);
   color: #fff;
+  box-shadow: var(--glow);
 }
 .btn-primary:hover {
   background: var(--green-600);
 }
 .btn-danger {
   background: var(--red);
-  border-color: var(--red);
   color: #fff;
 }
 .btn-danger:hover {
@@ -234,7 +246,6 @@ code {
 }
 .btn-danger-ghost {
   color: var(--red);
-  border-color: color-mix(in srgb, var(--red) 35%, var(--border));
 }
 .btn-ghost {
   background: transparent;
@@ -288,21 +299,22 @@ code {
   opacity: 0.5;
 }
 .chip {
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 0;
+  background: var(--bg);
+  box-shadow: var(--raise-sm);
   color: var(--text);
   border-radius: 999px;
-  padding: 6px 14px;
-  min-height: 36px;
+  padding: 6px 16px;
+  min-height: 38px;
   font: inherit;
   font-size: 14px;
   cursor: pointer;
 }
 .chip.active {
-  background: var(--green-50);
-  border-color: var(--green);
-  color: var(--green);
-  font-weight: 600;
+  background: var(--green);
+  color: #fff;
+  box-shadow: var(--glow);
+  font-weight: 700;
 }
 
 /* ---------- forms ---------- */
@@ -332,11 +344,12 @@ code {
 }
 .input {
   width: 100%;
-  min-height: 42px;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: var(--bg);
+  box-shadow: var(--inset);
   color: var(--text);
   font: inherit;
   font-size: 16px; /* no iOS zoom */
@@ -349,6 +362,7 @@ textarea.input {
   border-color: var(--red);
 }
 .input:disabled {
+  box-shadow: none;
   background: var(--surface-2);
   color: var(--text-2);
 }
@@ -509,8 +523,8 @@ textarea.input {
   position: fixed;
   inset: 0 auto 0 0;
   width: var(--sidebar);
-  background: var(--surface);
-  border-right: 1px solid var(--border);
+  background: var(--bg);
+  box-shadow: 8px 0 24px rgb(155 170 158 / 25%);
   display: flex;
   flex-direction: column;
   z-index: 40;
@@ -522,8 +536,9 @@ textarea.input {
   padding: 16px;
 }
 .brand-name {
-  font-weight: 800;
-  font-size: 17px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
 }
 .brand-sub {
   font-size: 12px;
@@ -541,18 +556,19 @@ textarea.input {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 11px 12px;
   border-radius: var(--radius-sm);
   color: var(--text);
-  font-weight: 500;
+  font-weight: 600;
 }
 .nav-link:hover {
   background: var(--surface-2);
   text-decoration: none;
 }
 .nav-link.active {
-  background: var(--green-50);
-  color: var(--green);
+  background: var(--green);
+  color: #fff;
+  box-shadow: var(--glow);
   font-weight: 700;
 }
 .nav-icon {
@@ -570,6 +586,7 @@ textarea.input {
 }
 .sidebar-foot {
   border-top: 1px solid var(--border);
+  margin: 0 12px;
   padding: 12px 16px;
   display: flex;
   align-items: center;
@@ -597,11 +614,11 @@ textarea.input {
   padding: 0 16px;
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
 }
 .topbar-plain {
   justify-content: space-between;
-  background: var(--surface);
+  background: var(--bg);
+  box-shadow: 0 6px 18px rgb(155 170 158 / 25%);
 }
 .topbar-plain .brand {
   padding: 0;
@@ -663,7 +680,7 @@ textarea.input {
     display: inline-grid;
   }
   .content {
-    padding: 16px 16px calc(var(--bottombar) + 24px);
+    padding: 16px 16px calc(var(--bottombar) + 40px);
   }
   .status-banner {
     padding: 10px 16px;
@@ -671,11 +688,11 @@ textarea.input {
   .bottombar {
     display: flex;
     position: fixed;
-    inset: auto 0 0 0;
-    height: calc(var(--bottombar) + env(safe-area-inset-bottom));
-    padding-bottom: env(safe-area-inset-bottom);
+    inset: auto 12px calc(12px + env(safe-area-inset-bottom)) 12px;
+    height: var(--bottombar);
+    border-radius: 24px;
     background: var(--surface);
-    border-top: 1px solid var(--border);
+    box-shadow: 0 12px 32px rgb(120 138 124 / 30%), 0 2px 6px rgb(120 138 124 / 12%);
     z-index: 30;
   }
   .bottom-link {
@@ -715,10 +732,11 @@ textarea.input {
 
 .lang-switch {
   display: inline-flex;
-  border: 1px solid var(--border);
+  border: 0;
   border-radius: 999px;
   overflow: hidden;
-  background: var(--surface);
+  background: var(--bg);
+  box-shadow: var(--inset);
 }
 .lang-switch button {
   border: 0;
@@ -760,9 +778,9 @@ textarea.input {
   max-height: 70vh;
   overflow-y: auto;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 0;
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: 0 16px 40px rgb(120 138 124 / 35%);
   z-index: 50;
 }
 .bell-head {
@@ -818,11 +836,11 @@ textarea.input {
   font-size: 14px;
 }
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--bg);
+  border: 0;
   border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
+  padding: 18px;
+  box-shadow: var(--raise);
   min-width: 0;
 }
 .content > .card,
@@ -923,10 +941,11 @@ textarea.input {
   margin-bottom: 16px;
 }
 .stat {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--bg);
+  border: 0;
+  box-shadow: var(--raise);
   border-radius: var(--radius);
-  padding: 14px 16px;
+  padding: 16px 18px;
   min-width: 0;
 }
 .stat-label {
@@ -934,8 +953,9 @@ textarea.input {
   font-size: 13px;
 }
 .stat-value {
+  font-family: var(--font-display);
   font-size: 24px;
-  font-weight: 800;
+  font-weight: 700;
   margin-top: 2px;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
@@ -950,11 +970,12 @@ textarea.input {
 }
 .stat-link:hover {
   text-decoration: none;
-  border-color: var(--green);
+  background: var(--surface);
 }
 .stat-link .stat {
   border: 0;
   padding: 0;
+  box-shadow: none;
 }
 .stat-link.attention .stat-value {
   color: var(--red);
@@ -1017,12 +1038,14 @@ textarea.input {
 .table-wrap {
   width: 100%;
   overflow-x: auto;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--bg);
+  border: 0;
   border-radius: var(--radius);
+  box-shadow: var(--raise);
 }
 .card .table-wrap {
   border: 0;
+  box-shadow: none;
 }
 .table {
   width: 100%;
@@ -1321,8 +1344,9 @@ textarea.input {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--bg);
+  box-shadow: var(--raise);
+  border: 0;
   border-radius: 20px;
   padding: 16px;
 }
@@ -1357,8 +1381,9 @@ textarea.input {
 .key {
   min-height: 64px;
   border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--surface-2);
+  border: 0;
+  box-shadow: var(--raise-sm);
+  background: var(--bg);
   color: var(--text);
   font-size: 26px;
   font-weight: 700;
@@ -1368,6 +1393,7 @@ textarea.input {
 }
 .key:active {
   background: var(--green-50);
+  box-shadow: var(--inset);
 }
 .key-fn {
   font-size: 20px;
@@ -1437,8 +1463,9 @@ textarea.input {
   margin: 8px 0 0;
 }
 .issue-queue {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--bg);
+  box-shadow: var(--raise);
+  border: 0;
   border-radius: var(--radius);
   padding: 14px 16px;
 }

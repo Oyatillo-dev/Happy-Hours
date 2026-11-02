@@ -70,6 +70,11 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum RefundStatus {
+  PENDING
+  SUCCEEDED
+}
+
 enum ComplaintStatus {
   OPEN
   APPROVED
@@ -252,6 +257,7 @@ model Order {
   createdAt      DateTime    @default(now())
 
   payments Payment[]
+  refunds  Refund[]
   review   Review?
 
   @@index([userId, createdAt])
@@ -271,6 +277,28 @@ model Payment {
   payUrl      String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  refunds Refund[]
+}
+
+/// Money owed back to a buyer. Kept until the acquirer confirms it, so a failed
+/// call to the bank is retried instead of being lost.
+model Refund {
+  id            String       @id @default(cuid())
+  paymentId     String
+  payment       Payment      @relation(fields: [paymentId], references: [id])
+  orderId       String
+  order         Order        @relation(fields: [orderId], references: [id])
+  amountKgs     Int
+  status        RefundStatus @default(PENDING)
+  attempts      Int          @default(0)
+  lastError     String?
+  nextAttemptAt DateTime     @default(now())
+  createdAt     DateTime     @default(now())
+  completedAt   DateTime?
+
+  @@index([status, nextAttemptAt])
+  @@index([orderId])
 }
 
 model Review {

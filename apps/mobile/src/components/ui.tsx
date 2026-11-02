@@ -11,7 +11,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useI18n } from '@/i18n';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, shadow, space } from '@/theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -45,6 +45,7 @@ export function Button({
       style={({ pressed }) => [
         styles.button,
         { backgroundColor: v.bg, borderColor: v.border },
+        variant === 'primary' ? shadow.glow : variant !== 'ghost' && shadow.raiseSm,
         off && styles.buttonDisabled,
         pressed && !off && { opacity: 0.85 },
         style,
@@ -64,8 +65,8 @@ export function Button({
 
 const buttonVariants = {
   primary: { bg: colors.brand, fg: colors.white, border: colors.brand },
-  secondary: { bg: colors.card, fg: colors.brandDark, border: colors.border },
-  danger: { bg: colors.card, fg: colors.danger, border: '#f1c9c4' },
+  secondary: { bg: colors.card, fg: colors.brandDark, border: colors.card },
+  danger: { bg: colors.card, fg: colors.danger, border: colors.card },
   ghost: { bg: 'transparent', fg: colors.brandDark, border: 'transparent' },
 };
 
@@ -219,8 +220,8 @@ export function Row({ icon, children }: { icon: IconName; children: ReactNode })
 
 export const styles = StyleSheet.create({
   button: {
-    minHeight: 50,
-    borderRadius: radius.md,
+    minHeight: 54,
+    borderRadius: radius.md + 2,
     paddingHorizontal: space.lg,
     alignItems: 'center',
     justifyContent: 'center',
@@ -228,32 +229,27 @@ export const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.5 },
   buttonInner: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  buttonText: { fontSize: 16, fontWeight: '600' },
+  buttonText: { fontSize: 16, fontWeight: '700' },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
     borderRadius: radius.pill,
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
+    ...shadow.raiseSm,
   },
-  chipActive: { backgroundColor: colors.brand, borderColor: colors.brand },
-  chipText: { fontSize: 14, color: colors.text, fontWeight: '500' },
+  chipActive: { backgroundColor: colors.brand, ...shadow.glow },
+  chipText: { fontSize: 14, color: colors.text, fontWeight: '600' },
   chipTextActive: { color: colors.white },
   card: {
     backgroundColor: colors.card,
     borderRadius: radius.lg,
     padding: space.lg,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    ...shadow.raise,
   },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: space.sm },
+  sectionTitle: { fontSize: 18, fontWeight: '800', color: colors.text, marginBottom: space.sm },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space.xl, gap: space.md, minHeight: 280 },
   muted: { color: colors.muted },
   stateTitle: { fontSize: 18, fontWeight: '700', color: colors.text, textAlign: 'center' },

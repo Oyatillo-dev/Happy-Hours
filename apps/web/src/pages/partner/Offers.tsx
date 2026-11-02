@@ -287,15 +287,27 @@ function PublishModal({ defaultDate, onClose, onDone }: { defaultDate: string; o
   );
 }
 
+/** Quantity can always change (not below sold); the window only while nobody has booked. */
 function QuantityModal({ offer, onClose }: { offer: PartnerOffer; onClose: () => void }) {
   const { t } = useI18n();
   const qc = useQueryClient();
   const toast = useToast();
+  const locations = useLocations();
   const [value, setValue] = useState(String(offer.quantity));
+  const [win, setWin] = useState({ from: time(offer.pickupFrom), to: time(offer.pickupTo) });
   const n = Number(value);
   const err = !Number.isInteger(n) || n < 0 || n > rules.maxQuantity ? t('err.invalid_number') : n < offer.sold ? t('err.quantity_below_sold', { sold: offer.sold }) : null;
+  const booked = offer.sold > 0 || offer._count.orders > 0;
+  const loc = (locations.data ?? []).find((l) => l.id === offer.location.id);
+  const winChanged = win.from !== time(offer.pickupFrom) || win.to !== time(offer.pickupTo);
+  const winErr = winChanged ? windowError(loc, win.from, win.to, offer.date) : null;
+  const winText = winErr ? t(winErr, { min: rules.minWindowMinutes, max: rules.maxWindowMinutes }) : null;
   const save = useMutation({
-    mutationFn: () => partnerApi.updateOffer(offer.id, n),
+    mutationFn: () =>
+      partnerApi.updateOffer(offer.id, {
+        quantity: n,
+        ...(winChanged ? { pickupFromTime: win.from, pickupToTime: win.to } : {}),
+      }),
     onSuccess: () => {
       toast(t('common.saved'));
       void qc.invalidateQueries({ queryKey: ['partner', 'offers'] });
@@ -311,7 +323,7 @@ function QuantityModal({ offer, onClose }: { offer: PartnerOffer; onClose: () =>
           <button type="button" className="btn" onClick={onClose}>
             {t('common.cancel')}
           </button>
-          <button type="button" className="btn btn-primary" disabled={!!err || save.isPending} onClick={() => save.mutate()}>
+          <button type="button" className="btn btn-primary" disabled={!!err || !!winErr || save.isPending} onClick={() => save.mutate()}>
             {t('common.save')}
           </button>
         </>
@@ -330,6 +342,19 @@ function QuantityModal({ offer, onClose }: { offer: PartnerOffer; onClose: () =>
         </button>
       </div>
       {err ? <p className="field-error">{err}</p> : <p className="field-hint">{t('offers.qtyHint', { sold: offer.sold })}</p>}
+      <div className="grid-2">
+        <Field label={t('offers.pickupFrom')}>
+          <input className="input" type="time" value={win.from} disabled={booked} onChange={(e) => setWin({ ...win, from: e.target.value })} />
+        </Field>
+        <Field label={t('offers.pickupTo')}>
+          <input className="input" type="time" value={win.to} disabled={booked} onChange={(e) => setWin({ ...win, to: e.target.value })} />
+        </Field>
+      </div>
+      {booked ? (
+        <p className="field-hint">{t('offers.windowLocked')}</p>
+      ) : (
+        winText && <p className="field-error">{winText}</p>
+      )}
       {save.error && <ErrorBox error={save.error} />}
     </Modal>
   );

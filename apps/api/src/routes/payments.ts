@@ -11,6 +11,7 @@ const page = (title: string, body: string) => `<!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title}</title>
 <style>
+  *,*::before,*::after{box-sizing:border-box}
   body{font-family:system-ui,sans-serif;background:#f4f6f3;margin:0;display:grid;place-items:center;min-height:100vh;color:#1d2a1f}
   .card{background:#fff;border-radius:16px;padding:28px;max-width:360px;width:calc(100% - 32px);box-shadow:0 4px 24px #0001}
   h1{font-size:20px;margin:0 0 4px} p{color:#5b6b5e;margin:4px 0 20px} .sum{font-size:32px;font-weight:700;margin:8px 0 20px}
@@ -19,6 +20,22 @@ const page = (title: string, body: string) => `<!doctype html>
 </style></head><body><div class="card">${body}</div></body></html>`;
 
 const escape = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+/**
+ * Where the "back to the app" button leads. The app passes its own deep link
+ * (exp://…/--/orders/{id} in Expo Go, happyhours://orders/{id} in a build); only
+ * app schemes are accepted so this page cannot bounce buyers to another website.
+ */
+function returnUrl(query: unknown, orderId: string) {
+  const value = (query as { return?: unknown } | undefined)?.return;
+  if (typeof value === 'string' && /^(happyhours|exps?):\/\//.test(value) && value.length < 500) return value;
+  return `happyhours://orders/${orderId}`;
+}
+
+/** Button back to the app, plus an automatic return so the buyer does not have to tap. */
+const backToApp = (url: string, auto: boolean) =>
+  `<a class="btn pay" href="${escape(url)}">Вернуться в приложение</a>` +
+  (auto ? `<script>setTimeout(function(){location.replace(${JSON.stringify(url).replace(/</g, '\\u003c')})},1500)</script>` : '');
 
 export async function paymentRoutes(app: FastifyInstance) {
   // Webhook from the acquirer. Signature is verified over the raw body.
@@ -37,6 +54,7 @@ export async function paymentRoutes(app: FastifyInstance) {
     const { ref } = parse(z.object({ ref: z.string() }), request.params);
     const payment = await prisma.payment.findUnique({ where: { providerRef: ref }, include: { order: true } });
     if (!payment) throw notFound('payment');
+    const back = returnUrl(request.query, payment.orderId);
     const body =
       payment.status === 'PENDING'
         ? `<h1>Оплата заказа ${escape(payment.order.number)}</h1><p>Тестовая платёжная страница (ELQR / карта)</p>
@@ -45,7 +63,7 @@ export async function paymentRoutes(app: FastifyInstance) {
            <button class="fail" name="action" value="fail">Отказаться</button></form>
            <div class="note">В продакшене здесь будет страница банка-эквайера.</div>`
         : `<h1>Платёж уже обработан</h1><p>Статус: ${payment.status}</p>
-           <a class="btn pay" href="happyhours://orders/${payment.orderId}">Вернуться в приложение</a>`;
+           ${backToApp(back, false)}`;
     return reply.type('text/html').send(page('Оплата', body));
   });
 
@@ -66,6 +84,6 @@ export async function paymentRoutes(app: FastifyInstance) {
         : `<h1>Оплата отменена</h1><p>Можно попробовать ещё раз из приложения.</p>`;
     return reply
       .type('text/html')
-      .send(page('Оплата', `${body}<a class="btn pay" href="happyhours://orders/${payment.orderId}">Вернуться в приложение</a>`));
+      .send(page('Оплата', `${body}${backToApp(returnUrl(request.query, payment.orderId), ok)}`));
   });
 }

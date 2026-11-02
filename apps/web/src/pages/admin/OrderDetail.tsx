@@ -121,6 +121,41 @@ export function OrderDetailPage() {
                 </div>
               )}
             </section>
+            {o.refunds.length > 0 && (
+              <section className="card">
+                <h2>{t('ao.refunds')}</h2>
+                <div className="table-wrap">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th className="num">{t('orders.amount')}</th>
+                        <th>{t('common.status')}</th>
+                        <th className="num">{t('ao.refundAttempts')}</th>
+                        <th>{t('ao.refundError')}</th>
+                        <th>{t('common.date')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {o.refunds.map((r) => (
+                        <tr key={r.id}>
+                          <td className="num">{money(r.amountKgs)}</td>
+                          <td>
+                            {r.status === 'SUCCEEDED' ? (
+                              <Badge tone="green">{t('ao.refundDoneStatus')}</Badge>
+                            ) : (
+                              <Badge tone="yellow">{t('ao.refundPending', { at: dateTime(r.nextAttemptAt, lang) })}</Badge>
+                            )}
+                          </td>
+                          <td className="num">{r.attempts}</td>
+                          <td className="small">{r.lastError ?? '—'}</td>
+                          <td>{dateTime(r.completedAt ?? r.createdAt, lang)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
             <section className="card">
               <h2>{t('ao.history')}</h2>
               {o.history.length === 0 ? (

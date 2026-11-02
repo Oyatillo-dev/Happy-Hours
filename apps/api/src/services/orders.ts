@@ -182,24 +182,99 @@ export async function handlePaymentEvent(event: PaymentEvent) {
   return { duplicate: false };
 }
 
+/**
+ * Records a refund and asks the acquirer for it right away. If the bank call fails,
+ * the refund stays PENDING and retryRefunds() keeps trying, so money owed to a buyer
+ * is never silently lost. Returns the amount committed to be refunded.
+ */
 async function refundPayment(paymentId: string, amountKgs: number) {
-  const payment = await prisma.payment.findUniqueOrThrow({ where: { id: paymentId } });
-  const refundable = payment.amountKgs - payment.refundedKgs;
-  const amount = Math.min(amountKgs, refundable);
-  if (amount <= 0) return 0;
-  await paymentProvider.refund({ providerRef: payment.providerRef, amountKgs: amount });
-  await prisma.payment.update({
-    where: { id: paymentId },
-    data: {
-      refundedKgs: { increment: amount },
-      status: amount === refundable ? 'REFUNDED' : payment.status,
-    },
+  const refund = await prisma.$transaction(async (tx) => {
+    // Serialise refunds of one payment so two of them can never exceed what was paid.
+    await tx.$queryRaw`SELECT 1 FROM "Payment" WHERE "id" = ${paymentId} FOR UPDATE`;
+    const payment = await tx.payment.findUniqueOrThrow({
+      where: { id: paymentId },
+      include: { refunds: { where: { status: 'PENDING' } } },
+    });
+    const queued = payment.refunds.reduce((s, r) => s + r.amountKgs, 0);
+    const amount = Math.min(amountKgs, payment.amountKgs - payment.refundedKgs - queued);
+    if (amount <= 0) return null;
+    return tx.refund.create({
+      data: {
+        paymentId,
+        orderId: payment.orderId,
+        amountKgs: amount,
+        // claimed by this call; the retry job picks it up only if this attempt fails
+        nextAttemptAt: new Date(Date.now() + minutes(REFUND_CLAIM_MINUTES)),
+      },
+    });
   });
-  await prisma.order.update({
-    where: { id: payment.orderId },
-    data: { refundedKgs: { increment: amount } },
+  if (!refund) return 0;
+  await attemptRefund(refund.id);
+  return refund.amountKgs;
+}
+
+const REFUND_CLAIM_MINUTES = 5;
+/** After this many failed attempts a refund is shown to admins as stuck (it is still retried). */
+export const REFUND_STUCK_ATTEMPTS = 3;
+
+async function attemptRefund(refundId: string) {
+  const refund = await prisma.refund.findUniqueOrThrow({ where: { id: refundId }, include: { payment: true } });
+  if (refund.status !== 'PENDING') return true;
+  try {
+    await paymentProvider.refund({
+      providerRef: refund.payment.providerRef,
+      amountKgs: refund.amountKgs,
+      refundId: refund.id,
+    });
+  } catch (err) {
+    const attempts = refund.attempts + 1;
+    await prisma.refund.update({
+      where: { id: refundId },
+      data: {
+        attempts,
+        lastError: String(err instanceof Error ? err.message : err).slice(0, 500),
+        // 1, 2, 4 … minutes, at most an hour between attempts
+        nextAttemptAt: new Date(Date.now() + minutes(Math.min(2 ** (attempts - 1), 60))),
+      },
+    });
+    return false;
+  }
+  await prisma.$transaction(async (tx) => {
+    const done = await tx.refund.updateMany({
+      where: { id: refundId, status: 'PENDING' },
+      data: { status: 'SUCCEEDED', completedAt: new Date(), attempts: { increment: 1 }, lastError: null },
+    });
+    if (!done.count) return;
+    const payment = await tx.payment.update({
+      where: { id: refund.paymentId },
+      data: { refundedKgs: { increment: refund.amountKgs } },
+    });
+    if (payment.refundedKgs >= payment.amountKgs) {
+      await tx.payment.update({ where: { id: payment.id }, data: { status: 'REFUNDED' } });
+    }
+    await tx.order.update({ where: { id: refund.orderId }, data: { refundedKgs: { increment: refund.amountKgs } } });
   });
-  return amount;
+  return true;
+}
+
+/** Retries refunds the acquirer has not confirmed yet (runs every minute). */
+export async function retryRefunds(now = new Date()) {
+  const due = await prisma.refund.findMany({
+    where: { status: 'PENDING', nextAttemptAt: { lte: now } },
+    select: { id: true },
+    orderBy: { nextAttemptAt: 'asc' },
+    take: 50,
+  });
+  let done = 0;
+  for (const { id } of due) {
+    // Claim it so a second API instance does not ask the bank twice at the same time.
+    const claimed = await prisma.refund.updateMany({
+      where: { id, status: 'PENDING', nextAttemptAt: { lte: now } },
+      data: { nextAttemptAt: new Date(now.getTime() + minutes(REFUND_CLAIM_MINUTES)) },
+    });
+    if (claimed.count && (await attemptRefund(id))) done += 1;
+  }
+  return done;
 }
 
 /** FR-R04: refunds the money actually captured for an order. */

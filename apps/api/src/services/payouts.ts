@@ -75,7 +75,12 @@ export async function payoutsCsv(periodFrom: string) {
     include: { partner: true },
     orderBy: { partner: { brandName: 'asc' } },
   });
-  const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+  // Text a partner typed (e.g. a brand name starting with "=") would run as a formula in
+  // Excel; a leading apostrophe makes the spreadsheet treat it as plain text.
+  const esc = (v: string | number) => {
+    const s = typeof v === 'string' && /^[=+\-@\t\r]/.test(v) ? `'${v}` : String(v);
+    return `"${s.replace(/"/g, '""')}"`;
+  };
   const rows = [
     ['partner', 'legal_name', 'inn', 'bank', 'account', 'period_from', 'period_to', 'orders', 'gross', 'commission', 'refunds', 'net', 'status'],
     ...payouts.map((p) => [

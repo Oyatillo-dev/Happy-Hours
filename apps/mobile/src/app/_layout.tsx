@@ -1,6 +1,7 @@
 import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { router, Stack } from 'expo-router';
+import { Unbounded_700Bold, useFonts } from '@expo-google-fonts/unbounded';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { AppState, Platform } from 'react-native';
@@ -46,7 +47,8 @@ function RootStack() {
         screenOptions={{
           headerTintColor: colors.brandDark,
           headerTitleStyle: { color: colors.text, fontWeight: '700' },
-          headerStyle: { backgroundColor: colors.card },
+          headerStyle: { backgroundColor: colors.bg },
+          headerShadowVisible: false,
           contentStyle: { backgroundColor: colors.bg },
           headerBackButtonDisplayMode: 'minimal',
         }}
@@ -58,13 +60,14 @@ function RootStack() {
         <Stack.Screen name="partner/[id]" options={{ title: '' }} />
         <Stack.Screen name="complaint/[id]" options={{ title: t.complaint.title }} />
         <Stack.Screen name="notifications" options={{ title: t.notifications.title }} />
-        <Stack.Screen name="favorites" options={{ title: t.favorites.title }} />
       </Stack>
     </>
   );
 }
 
 export default function RootLayout() {
+  // Headings and prices use Unbounded; on a load error the app falls back to the system font.
+  const [fontsLoaded, fontError] = useFonts({ Unbounded_700Bold });
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -78,6 +81,7 @@ export default function RootLayout() {
         },
       }),
   );
+  if (!fontsLoaded && !fontError) return null;
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>

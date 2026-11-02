@@ -18,7 +18,11 @@ export interface PaymentProvider {
     amountKgs: number;
     description: string;
   }): Promise<{ providerRef: string; payUrl: string }>;
-  refund(input: { providerRef: string; amountKgs: number }): Promise<void>;
+  /**
+   * Must be idempotent per refundId (pass it to the bank as the idempotency key):
+   * a refund whose answer was lost is asked for again with the same id.
+   */
+  refund(input: { providerRef: string; amountKgs: number; refundId: string }): Promise<void>;
   /** Returns the event if the signature is valid, otherwise null. */
   parseWebhook(headers: Record<string, unknown>, rawBody: string): PaymentEvent | null;
 }
@@ -33,14 +37,20 @@ export function signPayload(rawBody: string) {
  */
 export class MockPaymentProvider implements PaymentProvider {
   readonly name = 'mock';
-  refunds: { providerRef: string; amountKgs: number }[] = [];
+  refunds: { providerRef: string; amountKgs: number; refundId: string }[] = [];
+  /** Tests set this to make the next refund calls fail like an unreachable bank. */
+  failRefunds = 0;
 
   async createPayment(input: { paymentId: string }) {
     const providerRef = `mock_${input.paymentId}`;
     return { providerRef, payUrl: `${config.PUBLIC_URL}/mock-pay/${providerRef}` };
   }
 
-  async refund(input: { providerRef: string; amountKgs: number }) {
+  async refund(input: { providerRef: string; amountKgs: number; refundId: string }) {
+    if (this.failRefunds > 0) {
+      this.failRefunds -= 1;
+      throw new Error('mock acquirer unavailable');
+    }
     this.refunds.push(input);
   }
 

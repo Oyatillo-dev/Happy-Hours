@@ -16,8 +16,11 @@ export function SchedulesPage() {
   const schedules = useQuery({ queryKey: ['partner', 'schedules'], queryFn: partnerApi.schedules, select: (d) => d.items });
   const [editing, setEditing] = useState<Schedule | 'new' | null>(null);
   const toggle = useMutation({
-    mutationFn: async (s: Schedule): Promise<unknown> =>
-      s.active ? partnerApi.deleteSchedule(s.id) : partnerApi.updateSchedule(s.id, { active: true }),
+    mutationFn: (s: Schedule) => partnerApi.updateSchedule(s.id, { active: !s.active }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['partner', 'schedules'] }),
+  });
+  const remove = useMutation({
+    mutationFn: (s: Schedule) => partnerApi.deleteSchedule(s.id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['partner', 'schedules'] }),
   });
   const days = (s: Schedule) => (s.weekdays.length === 7 ? t('schedules.everyday') : s.weekdays.map((d) => t(`weekday.${d}` as DictKey)).join(', '));
@@ -33,6 +36,7 @@ export function SchedulesPage() {
         }
       />
       {toggle.error && <ErrorBox error={toggle.error} />}
+      {remove.error && <ErrorBox error={remove.error} />}
       <QueryView query={schedules}>
         {(items) =>
           items.length === 0 ? (
@@ -72,6 +76,14 @@ export function SchedulesPage() {
                           onClick={() => (!s.active || window.confirm(t('schedules.deleteConfirm'))) && toggle.mutate(s)}
                         >
                           {s.active ? t('common.disable') : t('common.enable')}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-ghost"
+                          disabled={remove.isPending}
+                          onClick={() => window.confirm(t('schedules.removeConfirm')) && remove.mutate(s)}
+                        >
+                          {t('common.delete')}
                         </button>
                       </td>
                     </tr>

@@ -9,7 +9,7 @@ import { Banner, Button } from '@/components/ui';
 import { fmt, useI18n } from '@/i18n';
 import { fmtPhone, normalizePhone } from '@/lib/format';
 import { useNow } from '@/lib/useNow';
-import { colors, radius, space } from '@/theme';
+import { colors, fonts, radius, shadow, space } from '@/theme';
 
 type Step = 'phone' | 'code' | 'name';
 const RESEND_SECONDS = 60;
@@ -66,7 +66,7 @@ export default function LoginScreen() {
   };
 
   const verify = async (value = code) => {
-    if (value.length !== 4 || busy) return;
+    if (value.length !== 6 || busy) return;
     setBusy(true);
     setError(null);
     try {
@@ -158,21 +158,21 @@ export default function LoginScreen() {
               ref={codeRef}
               value={code}
               onChangeText={(v) => {
-                const digits = v.replace(/\D/g, '').slice(0, 4);
+                const digits = v.replace(/\D/g, '').slice(0, 6);
                 setCode(digits);
                 setError(null);
-                if (digits.length === 4) void verify(digits);
+                if (digits.length === 6) void verify(digits);
               }}
               keyboardType="number-pad"
               textContentType="oneTimeCode"
               autoComplete="sms-otp"
-              maxLength={4}
-              placeholder="••••"
+              maxLength={6}
+              placeholder="••••••"
               placeholderTextColor={colors.faint}
               style={styles.codeInput}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <Button testID="verify" title={t.login.verify} onPress={() => void verify()} loading={busy} disabled={code.length !== 4} />
+            <Button testID="verify" title={t.login.verify} onPress={() => void verify()} loading={busy} disabled={code.length !== 6} />
             <View style={styles.linksRow}>
               <Pressable onPress={() => setStep('phone')} hitSlop={8}>
                 <Text style={styles.link}>{t.login.changePhone}</Text>
@@ -225,27 +225,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     marginVertical: space.md,
+    ...shadow.glow,
   },
-  title: { fontSize: 24, fontWeight: '800', color: colors.text, textAlign: 'center' },
+  title: { fontSize: 22, lineHeight: 28, fontFamily: fonts.display, color: colors.text, textAlign: 'center' },
   subtitle: { fontSize: 15, color: colors.muted, textAlign: 'center', lineHeight: 21, marginBottom: space.sm },
   label: { fontSize: 14, fontWeight: '600', color: colors.text },
   phoneRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.inset,
     borderRadius: radius.md,
     paddingHorizontal: space.md,
-    height: 54,
+    height: 56,
     gap: space.sm,
   },
   prefix: { fontSize: 18, color: colors.muted, fontWeight: '600' },
   phoneInput: { flex: 1, fontSize: 18, color: colors.text, letterSpacing: 1 },
   input: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.inset,
     borderRadius: radius.md,
     paddingHorizontal: space.md,
     height: 54,
@@ -253,13 +250,11 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   codeInput: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.inset,
     borderRadius: radius.md,
     height: 64,
-    fontSize: 32,
-    letterSpacing: 16,
+    fontSize: 30,
+    letterSpacing: 10,
     textAlign: 'center',
     color: colors.text,
     fontWeight: '700',

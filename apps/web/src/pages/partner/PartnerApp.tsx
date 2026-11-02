@@ -13,6 +13,7 @@ import { ReviewsPage } from './Reviews';
 import { SchedulesPage } from './Schedules';
 import { StaffPage } from './Staff';
 import { StatsPage } from './Stats';
+import { ApplyPage } from '../Apply';
 import { StatusPage } from './Status';
 import { TemplatesPage } from './Templates';
 import { usePartner } from './hooks';
@@ -60,6 +61,12 @@ export function PartnerApp() {
       <Route element={<Shell title="app.partnerCabinet" nav={nav} banner={banner} />}>
         <Route index element={<Navigate to={home} replace />} />
         <Route path="status" element={<StatusPage />} />
+        <Route
+          path="reapply"
+          element={owner(
+            partner.data?.status === 'REJECTED' ? <ApplyPage rejected={partner.data} /> : <Navigate to="/p/status" replace />,
+          )}
+        />
         <Route path="offers" element={<OffersPage />} />
         <Route path="issue" element={<IssuePage />} />
         <Route path="orders" element={<OrdersPage />} />

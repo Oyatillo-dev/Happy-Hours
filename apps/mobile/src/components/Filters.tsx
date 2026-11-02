@@ -7,7 +7,7 @@ import { useAuth } from '@/auth/AuthContext';
 import { useI18n } from '@/i18n';
 import { DEFAULT_FILTERS, useFilters } from '@/lib/filters';
 import { fmtMoney } from '@/lib/format';
-import { colors, radius, space } from '@/theme';
+import { colors, radius, shadow, space } from '@/theme';
 import { Button, Chip } from './ui';
 
 const PRICES = [150, 200, 300, 500];
@@ -197,21 +197,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.sm,
-    backgroundColor: colors.card,
+    backgroundColor: colors.inset,
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
     paddingHorizontal: space.md,
-    height: 44,
+    height: 48,
   },
   searchInput: { flex: 1, fontSize: 15, color: colors.text, paddingVertical: 0 },
   filterBtn: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     borderRadius: radius.md,
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
+    ...shadow.raiseSm,
     alignItems: 'center',
     justifyContent: 'center',
   },

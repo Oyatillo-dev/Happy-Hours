@@ -17,12 +17,42 @@ const schema = z.object({
     .string()
     .default('true')
     .transform((v) => v === 'true'),
+  // How many reverse proxies (nginx, a load balancer) sit in front of the API. The client IP,
+  // and with it the rate limits, is taken from X-Forwarded-For only that many hops deep;
+  // trusting it blindly would let anyone pick their own IP and skip the limits.
+  TRUST_PROXY: z.coerce.number().int().min(0).default(0),
+  // The mock acquirer marks orders paid without money; production refuses it unless this is set.
+  ALLOW_MOCK_PAYMENTS: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 const parsed = schema.safeParse(process.env);
 if (!parsed.success) {
   console.error('Invalid environment:', parsed.error.flatten().fieldErrors);
   process.exit(1);
+}
+
+/** Refuses to start production with secrets anyone can read in the repo, or with free "payments". */
+function productionProblems(env: z.infer<typeof schema>) {
+  const problems: string[] = [];
+  const weak = (s: string) => s.length < 32 || /change-me/i.test(s);
+  if (weak(env.JWT_SECRET)) problems.push('JWT_SECRET must be a random string of 32+ characters');
+  if (weak(env.PAYMENT_WEBHOOK_SECRET)) problems.push('PAYMENT_WEBHOOK_SECRET must be a random string of 32+ characters');
+  if (env.PAYMENT_PROVIDER === 'mock' && !env.ALLOW_MOCK_PAYMENTS) {
+    problems.push('PAYMENT_PROVIDER=mock lets anyone pay without money; connect a bank or set ALLOW_MOCK_PAYMENTS=true for a test server');
+  }
+  if (!env.ADMIN_PHONES.trim()) problems.push('ADMIN_PHONES is empty');
+  return problems;
+}
+
+if (parsed.data.NODE_ENV === 'production') {
+  const problems = productionProblems(parsed.data);
+  if (problems.length) {
+    console.error(`Refusing to start in production:\n- ${problems.join('\n- ')}`);
+    process.exit(1);
+  }
 }
 
 export const config = {
@@ -52,6 +82,7 @@ export const rules = {
   otpTtlMinutes: 5,
   otpMaxAttempts: 5,
   otpMaxPerHour: 5,
+  otpMaxPerDay: 10,
   accessTokenTtl: '30m',
   refreshTokenDays: 30,
   // Too Good To Go estimates ~2.7 kg CO2e avoided per saved meal.

@@ -40,7 +40,7 @@ export function LoginPage() {
 
   const onVerify = (e: FormEvent) => {
     e.preventDefault();
-    if (/^\d{4}$/.test(code)) verify.mutate();
+    if (/^\d{6}$/.test(code)) verify.mutate();
   };
 
   return (
@@ -92,17 +92,17 @@ export function LoginPage() {
                 className="input input-lg code-input"
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                maxLength={4}
+                maxLength={6}
                 autoFocus
                 value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               />
             </Field>
             <Field label={`${t('auth.name')} (${t('common.optional')})`}>
               <input className="input" value={name} maxLength={80} onChange={(e) => setName(e.target.value)} />
             </Field>
             {verify.error && <ErrorBox error={verify.error} />}
-            <button className="btn btn-primary btn-lg" disabled={verify.isPending || code.length !== 4}>
+            <button className="btn btn-primary btn-lg" disabled={verify.isPending || code.length !== 6}>
               {verify.isPending ? t('common.loading') : t('auth.login')}
             </button>
             <div className="row-between">

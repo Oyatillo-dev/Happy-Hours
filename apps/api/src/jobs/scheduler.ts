@@ -1,7 +1,7 @@
 import type { FastifyBaseLogger } from 'fastify';
 import { localDate, localTime, weekday } from '../lib/time.js';
 import { generateScheduledOffers } from '../services/offers.js';
-import { expireReservations, markNoShows, markReady, sendPickupReminders } from '../services/orders.js';
+import { expireReservations, markNoShows, markReady, retryRefunds, sendPickupReminders } from '../services/orders.js';
 import { computeLastWeekPayouts } from '../services/payouts.js';
 
 /**
@@ -14,6 +14,7 @@ export async function tick(now = new Date()) {
     ready: await markReady(now),
     reminders: await sendPickupReminders(now),
     noShows: await markNoShows(now),
+    refunds: await retryRefunds(now),
     scheduled: 0,
     payouts: 0,
   };

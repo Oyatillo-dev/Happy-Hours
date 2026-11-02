@@ -17,6 +17,7 @@ export function OrdersPage() {
   const q = params.get('q') ?? '';
   const status = (params.get('status') ?? '') as OrderStatus | '';
   const partnerId = params.get('partnerId') ?? '';
+  const refunds = params.get('refunds') === 'pending' ? 'pending' : undefined;
   const offset = Number(params.get('offset') ?? 0);
   const [search, setSearch] = useState(q);
   const update = (next: Record<string, string>) => {
@@ -25,8 +26,9 @@ export function OrdersPage() {
     setParams(p, { replace: true });
   };
   const orders = useQuery({
-    queryKey: ['admin', 'orders', { q, status, partnerId, offset }],
-    queryFn: () => adminApi.orders({ q: q || undefined, status: status || undefined, partnerId: partnerId || undefined, limit: LIMIT, offset }),
+    queryKey: ['admin', 'orders', { q, status, partnerId, refunds, offset }],
+    queryFn: () =>
+      adminApi.orders({ q: q || undefined, status: status || undefined, partnerId: partnerId || undefined, refunds, limit: LIMIT, offset }),
     placeholderData: keepPreviousData,
   });
   return (
@@ -51,6 +53,11 @@ export function OrdersPage() {
             </option>
           ))}
         </select>
+        {refunds && (
+          <button type="button" className="chip active" onClick={() => update({ refunds: '', offset: '' })}>
+            {t('ao.pendingRefundsFilter')} ✕
+          </button>
+        )}
         {partnerId && (
           <button type="button" className="chip active" onClick={() => update({ partnerId: '', offset: '' })}>
             {orders.data?.items[0]?.offer.location.partner.brandName ?? t('ao.partner')} ✕

@@ -21,7 +21,7 @@
 | POST | `/auth/refresh` | `{ refreshToken }` | `{ accessToken, refreshToken }` |
 | POST | `/auth/logout` | `{ refreshToken }` | `{ ok }` |
 
-Лимиты: 5 кодов в час на номер, 5 попыток на код, код живёт 5 минут.
+Код — 6 цифр. Лимиты: 5 кодов в час и 10 в сутки на номер, 5 попыток на код, код живёт 5 минут. С одного IP — не больше 20 запросов кода и 60 проверок за 10 минут, на весь API — 600 запросов в минуту (ответ `429 too_many_requests`). За nginx укажите `TRUST_PROXY=1`, иначе все клиенты будут считаться одним IP.
 
 ## Профиль
 
@@ -80,14 +80,15 @@ READY ──окно закрылось──▶ NO_SHOW (без возврат�
 | Метод | Путь | Кто | Назначение |
 | --- | --- | --- | --- |
 | POST | `/partner/apply` | BUYER | заявка (FR-P01) |
+| POST | `/partner/reapply` | владелец | то же тело, что у `apply`: исправленная заявка после отказа снова уходит на проверку |
 | GET / PATCH | `/partner` | все / владелец | профиль, реквизиты |
 | GET / POST / PATCH | `/partner/locations[/:id]` | все / владелец | точки (FR-P02) |
 | GET / POST / DELETE | `/partner/staff[/:id]` | владелец | сотрудники (FR-P02) |
 | GET / POST / PATCH | `/partner/templates[/:id]` | все / владелец | шаблоны боксов (FR-P03) |
-| GET / POST / PATCH / DELETE | `/partner/schedules[/:id]` | все / владелец | расписания по дням недели (FR-P04) |
+| GET / POST / PATCH / DELETE | `/partner/schedules[/:id]` | все / владелец | расписания по дням недели (FR-P04); отключение — `PATCH { active: false }`, `DELETE` удаляет насовсем (опубликованные боксы остаются) |
 | GET | `/partner/offers?date=` | все | боксы на дату |
 | POST | `/partner/offers` | все | опубликовать (FR-P04) |
-| PATCH | `/partner/offers/:id` | все | `{ quantity }` (FR-P05) |
+| PATCH | `/partner/offers/:id` | все | `{ quantity?, pickupFromTime?, pickupToTime? }` (FR-P05); время меняется, только пока на бокс нет броней (`409 offer_has_orders`) |
 | POST | `/partner/offers/:id/cancel` | все | `{ reason }` — отмена с возвратами (FR-P06) |
 | GET | `/partner/orders?date=` | все | заказы на дату (FR-P08) |
 | POST | `/partner/orders/issue` | все | `{ qrToken }` или `{ code }` (FR-P07) |
@@ -106,11 +107,11 @@ READY ──окно закрылось──▶ NO_SHOW (без возврат�
 | GET | `/admin/partners/:id` | карточка партнёра |
 | POST | `/admin/partners/:id/approve` A | `{ commissionPct?, promoMonths? }` (FR-A01, FR-A02) |
 | POST | `/admin/partners/:id/reject` A | `{ reason }` |
-| POST | `/admin/partners/:id/suspend` A | `{ reason }` |
+| POST | `/admin/partners/:id/suspend` A | `{ reason, cancelOffers = true }` — при `cancelOffers` отменяет ещё не прошедшие боксы с возвратом денег покупателям |
 | POST | `/admin/partners/:id/reactivate` A | |
 | PATCH | `/admin/partners/:id/commission` A | `{ commissionPct, promoUntil? }` |
-| GET | `/admin/orders?q&status&partnerId` | поиск по номеру или телефону (FR-A03) |
-| GET | `/admin/orders/:id` | заказ, платежи, история |
+| GET | `/admin/orders?q&status&partnerId&refunds=pending` | поиск по номеру или телефону (FR-A03); `refunds=pending` — заказы с возвратами, которые банк ещё не подтвердил |
+| GET | `/admin/orders/:id` | заказ, платежи, возвраты, история |
 | POST | `/admin/orders/:id/refund` | `{ amountKgs?, reason }` |
 | GET | `/admin/complaints?status` | очередь жалоб (FR-A04) |
 | POST | `/admin/complaints/:id/resolve` | `{ decision: APPROVED\|REJECTED, resolution, refundKgs? }` |

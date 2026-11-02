@@ -307,6 +307,7 @@ export interface AdminDashboard {
   partnersByStatus: Partial<Record<PartnerStatus, number>>;
   buyers: number;
   openComplaints: number;
+  pendingRefunds: { count: number; amountKgs: number; stuck: number };
   daily: { date: string; orders: number; gmvKgs: number; listed: number; sold: number }[];
 }
 
@@ -389,9 +390,21 @@ export interface AuditEntry {
   createdAt: string;
 }
 
+export interface Refund {
+  id: string;
+  amountKgs: number;
+  status: 'PENDING' | 'SUCCEEDED';
+  attempts: number;
+  lastError: string | null;
+  nextAttemptAt: string;
+  createdAt: string;
+  completedAt: string | null;
+}
+
 export interface AdminOrderDetail extends Order {
   user: { id: string; name: string | null; phone: string };
   payments: Payment[];
+  refunds: Refund[];
   review: Review | null;
   offer: BoxOffer & { template: BoxTemplate; location: Location & { partner: Partner } };
   history: AuditEntry[];

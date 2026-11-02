@@ -102,6 +102,38 @@ export async function updateOfferQuantity(partnerId: string, offerId: string, qu
   return prisma.boxOffer.findUniqueOrThrow({ where: { id: offerId } });
 }
 
+/**
+ * Moves an offer's pickup window. Only while nobody has booked it: buyers who
+ * already paid chose that time, so a booked offer keeps its window.
+ */
+export async function updateOfferWindow(
+  partnerId: string,
+  offerId: string,
+  window: { pickupFromTime: string; pickupToTime: string },
+  locationId?: string | null,
+) {
+  const offer = await prisma.boxOffer.findFirst({
+    where: { id: offerId, location: { partnerId, ...(locationId ? { id: locationId } : {}) } },
+    include: { location: true },
+  });
+  if (!offer) throw notFound('offer');
+  if (offer.status !== 'ACTIVE') throw new AppError('offer_cancelled', 409);
+  validateWindow(offer.location, window.pickupFromTime, window.pickupToTime);
+  const pickupFrom = localDateTime(offer.date, window.pickupFromTime);
+  const pickupTo = localDateTime(offer.date, window.pickupToTime);
+  if (pickupTo <= new Date()) throw new AppError('window_in_past');
+  const res = await prisma.boxOffer.updateMany({
+    where: {
+      id: offerId,
+      sold: 0,
+      orders: { none: { status: { in: ['PENDING_PAYMENT', 'PAID', 'READY', 'ISSUED', 'NO_SHOW'] } } },
+    },
+    data: { pickupFrom, pickupTo },
+  });
+  if (res.count === 0) throw new AppError('offer_has_orders', 409);
+  return prisma.boxOffer.findUniqueOrThrow({ where: { id: offerId } });
+}
+
 /** FR-P06 */
 export async function cancelOffer(
   partnerId: string,
@@ -124,11 +156,38 @@ export async function cancelOffer(
   return prisma.boxOffer.findUniqueOrThrow({ where: { id: offerId } });
 }
 
-/** FR-P04: creates today's offers from recurring schedules (idempotent). */
-export async function generateScheduledOffers(date = localDate()) {
+/** Shown to buyers; the admin's own reason may be internal. */
+const SUSPENDED_REASON = 'Заведение временно приостановлено';
+
+/**
+ * Used when an admin suspends a partner: offers whose pickup has not ended are
+ * cancelled and their buyers refunded and notified. Unlike a partner's own
+ * cancellation this does not count against the partner's cancellation rate.
+ */
+export async function cancelUpcomingOffers(partnerId: string, actorId: string) {
+  const offers = await prisma.boxOffer.findMany({
+    where: { status: 'ACTIVE', pickupTo: { gt: new Date() }, location: { partnerId } },
+    select: { id: true },
+  });
+  let orders = 0;
+  for (const { id } of offers) {
+    const res = await prisma.boxOffer.updateMany({ where: { id, status: 'ACTIVE' }, data: { status: 'CANCELLED' } });
+    if (!res.count) continue;
+    orders += await cancelOrdersOfOffer(id, SUSPENDED_REASON);
+    await audit('offer.cancel', 'BoxOffer', id, actorId, { reason: SUSPENDED_REASON });
+  }
+  return { offers: offers.length, orders };
+}
+
+/** FR-P04: creates the day's offers from recurring schedules (idempotent). */
+export async function generateScheduledOffers(
+  date = localDate(),
+  opts: { scheduleId?: string; notifyFans?: boolean } = {},
+) {
   const day = weekday(date);
   const schedules = await prisma.schedule.findMany({
     where: {
+      ...(opts.scheduleId ? { id: opts.scheduleId } : {}),
       active: true,
       weekdays: { has: day },
       template: { active: true },
@@ -159,7 +218,38 @@ export async function generateScheduledOffers(date = localDate()) {
       .catch(() => null); // a concurrent run created it first
     if (!offer) continue;
     created += 1;
-    await notifyFavorites(s.location.partnerId, s.location.partner.brandName, s.template, offer.id);
+    if (opts.notifyFans !== false) {
+      await notifyFavorites(s.location.partnerId, s.location.partner.brandName, s.template, offer.id);
+    }
   }
   return created;
+}
+
+/**
+ * Applies a created or edited schedule to today's offer right away instead of
+ * waiting for tomorrow. While nobody has booked it, the offer is rebuilt from the
+ * schedule (or dropped if the schedule no longer runs today). Once booked, buyers
+ * keep the pickup window they chose and only the quantity follows the schedule.
+ */
+export async function syncTodayOffer(scheduleId: string) {
+  const date = localDate();
+  const offer = await prisma.boxOffer.findUnique({
+    where: { scheduleId_date: { scheduleId, date } },
+    include: { _count: { select: { orders: true } }, schedule: true },
+  });
+  if (offer?.status === 'ACTIVE' && offer._count.orders > 0) {
+    const schedule = offer.schedule!;
+    if (!schedule.active) return;
+    await prisma.boxOffer.updateMany({
+      where: { id: offer.id, sold: { lte: schedule.quantity } },
+      data: { quantity: schedule.quantity },
+    });
+    return;
+  }
+  if (offer?.status === 'ACTIVE') {
+    // The guard keeps the offer if a booking slipped in after the read above.
+    await prisma.boxOffer.deleteMany({ where: { id: offer.id, sold: 0, orders: { none: {} } } });
+  }
+  // Fans were already told about the offer being rebuilt.
+  await generateScheduledOffers(date, { scheduleId, notifyFans: !offer });
 }

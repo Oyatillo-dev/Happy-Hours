@@ -31,13 +31,17 @@ async function issueTokens(userId: string) {
 }
 
 export async function authRoutes(app: FastifyInstance) {
-  // FR-B01: login by phone + SMS code
-  app.post('/auth/otp/request', async (request) => {
+  // FR-B01: login by phone + SMS code. Each SMS costs money, so one IP may not
+  // request codes for many different numbers.
+  app.post('/auth/otp/request', { config: { rateLimit: { max: 20, timeWindow: '10 minutes' } } }, async (request) => {
     const { phone } = parse(z.object({ phone: phoneSchema }), request.body);
-    const recent = await prisma.otpCode.count({
-      where: { phone, createdAt: { gt: new Date(Date.now() - 3_600_000) } },
-    });
-    if (recent >= rules.otpMaxPerHour) throw new AppError('too_many_requests', 429);
+    const [lastHour, lastDay] = await Promise.all([
+      prisma.otpCode.count({ where: { phone, createdAt: { gt: new Date(Date.now() - 3_600_000) } } }),
+      prisma.otpCode.count({ where: { phone, createdAt: { gt: new Date(Date.now() - 86_400_000) } } }),
+    ]);
+    if (lastHour >= rules.otpMaxPerHour || lastDay >= rules.otpMaxPerDay) {
+      throw new AppError('too_many_requests', 429);
+    }
 
     const code = otpCode();
     await prisma.otpCode.create({
@@ -49,11 +53,11 @@ export async function authRoutes(app: FastifyInstance) {
     return { ok: true, phone, ...(exposeCode ? { devCode: code } : {}) };
   });
 
-  app.post('/auth/otp/verify', async (request) => {
+  app.post('/auth/otp/verify', { config: { rateLimit: { max: 60, timeWindow: '10 minutes' } } }, async (request) => {
     const body = parse(
       z.object({
         phone: phoneSchema,
-        code: z.string().regex(/^\d{4}$/),
+        code: z.string().regex(/^\d{6}$/),
         name: z.string().trim().min(1).max(80).optional(),
         language: z.enum(['ru', 'ky']).optional(),
       }),

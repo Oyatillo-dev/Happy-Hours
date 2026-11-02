@@ -61,6 +61,7 @@ export const meApi = {
 
 export const partnerApi = {
   apply: (body: ApplyInput) => post<PartnerWithLocations>('/partner/apply', body),
+  reapply: (body: ApplyInput) => post<PartnerWithLocations>('/partner/reapply', body),
   get: () => api<PartnerWithLocations>('/partner'),
   update: (body: Partial<Pick<Partner, 'brandName' | 'contactPhone' | 'bankName' | 'bankAccount'>>) =>
     patch<Partner>('/partner', body),
@@ -88,7 +89,8 @@ export const partnerApi = {
 
   offers: (date?: string) => api<Items<PartnerOffer>>('/partner/offers', { query: { date } }),
   publishOffer: (body: PublishOfferInput) => post<BoxOffer>('/partner/offers', body),
-  updateOffer: (id: string, quantity: number) => patch<BoxOffer>(`/partner/offers/${id}`, { quantity }),
+  updateOffer: (id: string, body: { quantity?: number; pickupFromTime?: string; pickupToTime?: string }) =>
+    patch<BoxOffer>(`/partner/offers/${id}`, body),
   cancelOffer: (id: string, reason: string) => post<BoxOffer>(`/partner/offers/${id}/cancel`, { reason }),
 
   orders: (date?: string) => api<Items<PartnerOrder>>('/partner/orders', { query: { date } }),
@@ -108,12 +110,13 @@ export const adminApi = {
   approve: (id: string, body: { commissionPct?: number; promoMonths: number }) =>
     post<Partner>(`/admin/partners/${id}/approve`, body),
   reject: (id: string, reason: string) => post<Partner>(`/admin/partners/${id}/reject`, { reason }),
-  suspend: (id: string, reason: string) => post<Partner>(`/admin/partners/${id}/suspend`, { reason }),
+  suspend: (id: string, reason: string, cancelOffers: boolean) =>
+    post<Partner>(`/admin/partners/${id}/suspend`, { reason, cancelOffers }),
   reactivate: (id: string) => post<Partner>(`/admin/partners/${id}/reactivate`),
   commission: (id: string, body: { commissionPct: number; promoUntil?: string | null }) =>
     patch<Partner>(`/admin/partners/${id}/commission`, body),
 
-  orders: (q: { q?: string; status?: OrderStatus; partnerId?: string; limit?: number; offset?: number }) =>
+  orders: (q: { q?: string; status?: OrderStatus; partnerId?: string; refunds?: 'pending'; limit?: number; offset?: number }) =>
     api<Paged<AdminOrderListItem>>('/admin/orders', { query: q as Query }),
   order: (id: string) => api<AdminOrderDetail>(`/admin/orders/${id}`),
   refund: (id: string, body: { amountKgs?: number; reason: string }) =>

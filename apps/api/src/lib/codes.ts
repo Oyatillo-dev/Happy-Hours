@@ -8,7 +8,8 @@ export const pickupCode = () => String(randomInt(0, 1_000_000)).padStart(6, '0')
 /** Opaque token encoded in the buyer's QR code. */
 export const qrToken = () => randomBytes(18).toString('base64url');
 
-export const otpCode = () => String(randomInt(0, 10_000)).padStart(4, '0');
+/** 6 digits: a 4-digit code falls to guessing within weeks even with per-hour limits. */
+export const otpCode = () => String(randomInt(0, 1_000_000)).padStart(6, '0');
 
 export const refreshToken = () => randomBytes(32).toString('base64url');
 

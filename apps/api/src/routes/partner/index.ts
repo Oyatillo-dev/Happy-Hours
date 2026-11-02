@@ -2,11 +2,20 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { prisma } from '../../db.js';
 import { currentUser, partnerIdOf, requireAuth, requireOwner, requirePartner } from '../../lib/auth.js';
+import { audit } from '../../lib/audit.js';
 import { normalizePhone } from '../../lib/codes.js';
 import { AppError, notFound } from '../../lib/errors.js';
 import { localDate, localDateTime } from '../../lib/time.js';
 import { hhmm, idParam, isoDate, parse } from '../../lib/validate.js';
-import { cancelOffer, publishOffer, updateOfferQuantity, validatePrices, validateWindow } from '../../services/offers.js';
+import {
+  cancelOffer,
+  publishOffer,
+  syncTodayOffer,
+  updateOfferQuantity,
+  updateOfferWindow,
+  validatePrices,
+  validateWindow,
+} from '../../services/offers.js';
 import { issueOrder } from '../../services/orders.js';
 
 const locationSchema = z.object({
@@ -16,6 +25,17 @@ const locationSchema = z.object({
   lng: z.number().min(74).max(75.2),
   openTime: hhmm,
   closeTime: hhmm,
+});
+
+const applySchema = z.object({
+  brandName: z.string().trim().min(2).max(80),
+  legalName: z.string().trim().min(2).max(200),
+  inn: z.string().regex(/^\d{14}$/, 'ИНН — 14 цифр'),
+  category: z.enum(['BAKERY', 'CAFE', 'RESTAURANT', 'GROCERY', 'OTHER']),
+  contactPhone: z.string(),
+  bankName: z.string().trim().min(2).max(100),
+  bankAccount: z.string().trim().min(10).max(34),
+  location: locationSchema,
 });
 
 const templateSchema = z.object({
@@ -55,19 +75,7 @@ function staffLocation(request: FastifyRequest) {
 export async function partnerRoutes(app: FastifyInstance) {
   // ---------- onboarding (FR-P01) ----------
   app.post('/partner/apply', { preHandler: requireAuth('BUYER') }, async (request, reply) => {
-    const body = parse(
-      z.object({
-        brandName: z.string().trim().min(2).max(80),
-        legalName: z.string().trim().min(2).max(200),
-        inn: z.string().regex(/^\d{14}$/, 'ИНН — 14 цифр'),
-        category: z.enum(['BAKERY', 'CAFE', 'RESTAURANT', 'GROCERY', 'OTHER']),
-        contactPhone: z.string(),
-        bankName: z.string().trim().min(2).max(100),
-        bankAccount: z.string().trim().min(10).max(34),
-        location: locationSchema,
-      }),
-      request.body,
-    );
+    const body = parse(applySchema, request.body);
     const contactPhone = normalizePhone(body.contactPhone);
     if (!contactPhone) throw new AppError('invalid_phone');
     const user = currentUser(request);
@@ -90,6 +98,32 @@ export async function partnerRoutes(app: FastifyInstance) {
       return created;
     });
     return reply.status(201).send(partner);
+  });
+
+  // A rejected applicant fixes the data and sends the application for review again.
+  app.post('/partner/reapply', { preHandler: requireOwner }, async (request) => {
+    const body = parse(applySchema, request.body);
+    const contactPhone = normalizePhone(body.contactPhone);
+    if (!contactPhone) throw new AppError('invalid_phone');
+    const partnerId = partnerIdOf(request);
+    const current = await prisma.partner.findUniqueOrThrow({
+      where: { id: partnerId },
+      include: { locations: { orderBy: { createdAt: 'asc' }, take: 1 } },
+    });
+    if (current.status !== 'REJECTED') throw new AppError('partner_not_rejected', 409);
+    const { location, ...fields } = body;
+    const partner = await prisma.$transaction(async (tx) => {
+      const [first] = current.locations;
+      if (first) await tx.location.update({ where: { id: first.id }, data: location });
+      else await tx.location.create({ data: { ...location, partnerId } });
+      return tx.partner.update({
+        where: { id: partnerId },
+        data: { ...fields, contactPhone, status: 'PENDING', rejectReason: null },
+        include: { locations: { orderBy: { createdAt: 'asc' } } },
+      });
+    });
+    await audit('partner.reapply', 'Partner', partnerId, currentUser(request).id, { previousReason: current.rejectReason });
+    return partner;
   });
 
   app.get('/partner', { preHandler: requirePartner }, async (request) => {
@@ -224,6 +258,7 @@ export async function partnerRoutes(app: FastifyInstance) {
     if (!template) throw notFound('template');
     validateWindow(location, body.pickupFromTime, body.pickupToTime);
     const s = await prisma.schedule.create({ data: { ...body, weekdays: normalizeWeekdays(body.weekdays) } });
+    await syncTodayOffer(s.id);
     return reply.status(201).send(s);
   });
 
@@ -236,12 +271,16 @@ export async function partnerRoutes(app: FastifyInstance) {
     });
     if (!current) throw notFound('schedule');
     validateWindow(current.location, body.pickupFromTime ?? current.pickupFromTime, body.pickupToTime ?? current.pickupToTime);
-    return prisma.schedule.update({
+    const s = await prisma.schedule.update({
       where: { id },
       data: { ...body, ...(body.weekdays ? { weekdays: normalizeWeekdays(body.weekdays) } : {}) },
     });
+    await syncTodayOffer(id);
+    return s;
   });
 
+  // Disabling is PATCH { active: false }; this removes the schedule for good.
+  // Offers it already published stay (with their orders) as one-off offers.
   app.delete('/partner/schedules/:id', { preHandler: requireOwner }, async (request) => {
     const { id } = parse(idParam, request.params);
     const res = await prisma.schedule.updateMany({
@@ -249,6 +288,11 @@ export async function partnerRoutes(app: FastifyInstance) {
       data: { active: false },
     });
     if (!res.count) throw notFound('schedule');
+    await syncTodayOffer(id);
+    await prisma.$transaction([
+      prisma.boxOffer.updateMany({ where: { scheduleId: id }, data: { scheduleId: null } }),
+      prisma.schedule.delete({ where: { id } }),
+    ]);
     return { ok: true };
   });
 
@@ -286,8 +330,31 @@ export async function partnerRoutes(app: FastifyInstance) {
 
   app.patch('/partner/offers/:id', { preHandler: requirePartner }, async (request) => {
     const { id } = parse(idParam, request.params);
-    const { quantity } = parse(z.object({ quantity: z.number().int().min(0).max(500) }), request.body);
-    return updateOfferQuantity(partnerIdOf(request), id, quantity, staffLocation(request));
+    const body = parse(
+      z
+        .object({
+          quantity: z.number().int().min(0).max(500).optional(),
+          pickupFromTime: hhmm.optional(),
+          pickupToTime: hhmm.optional(),
+        })
+        .refine((b) => !b.pickupFromTime === !b.pickupToTime, 'pickupFromTime and pickupToTime go together'),
+      request.body,
+    );
+    const partnerId = partnerIdOf(request);
+    let offer;
+    if (body.pickupFromTime && body.pickupToTime) {
+      offer = await updateOfferWindow(
+        partnerId,
+        id,
+        { pickupFromTime: body.pickupFromTime, pickupToTime: body.pickupToTime },
+        staffLocation(request),
+      );
+    }
+    if (body.quantity !== undefined) {
+      offer = await updateOfferQuantity(partnerId, id, body.quantity, staffLocation(request));
+    }
+    if (!offer) throw new AppError('nothing_to_update');
+    return offer;
   });
 
   app.post('/partner/offers/:id/cancel', { preHandler: requirePartner }, async (request) => {

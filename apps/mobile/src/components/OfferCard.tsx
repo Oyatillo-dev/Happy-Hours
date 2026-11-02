@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Offer } from '@/api/types';
 import { fmt, useI18n } from '@/i18n';
 import { discountPct, fmtDay, fmtMoney, fmtRating, fmtTime } from '@/lib/format';
-import { colors, radius, space } from '@/theme';
+import { colors, fonts, radius, shadow, space } from '@/theme';
 import { HeartButton } from './HeartButton';
 import { OfferPhoto } from './OfferPhoto';
 
@@ -20,7 +20,7 @@ export function OfferCard({ offer, compact }: { offer: Offer; compact?: boolean 
       onPress={() => router.push(`/offer/${offer.id}`)}
       style={({ pressed }) => [styles.card, pressed && { opacity: 0.92 }]}
     >
-      <View>
+      <View style={styles.photo}>
         <OfferPhoto url={offer.template.photoUrl} category={offer.template.category} height={compact ? 96 : 132} />
         <View style={styles.topRow}>
           <View style={[styles.pill, soldOut ? styles.pillSold : styles.pillLeft]}>
@@ -81,14 +81,10 @@ export function OfferCard({ offer, compact }: { offer: Offer; compact?: boolean 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    borderRadius: radius.lg + 4,
+    ...shadow.raise,
   },
+  photo: { borderTopLeftRadius: radius.lg + 4, borderTopRightRadius: radius.lg + 4, overflow: 'hidden' },
   topRow: {
     position: 'absolute',
     top: space.sm,
@@ -101,20 +97,20 @@ const styles = StyleSheet.create({
   pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill },
   pillLeft: { backgroundColor: 'rgba(255,255,255,0.95)' },
   pillSold: { backgroundColor: colors.text },
-  pillText: { fontSize: 12, fontWeight: '700', color: colors.brandDark },
+  pillText: { fontSize: 12, fontWeight: '800', color: colors.brandDark },
   discount: {
     position: 'absolute',
     bottom: space.sm,
     left: space.sm,
-    backgroundColor: colors.brand,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radius.sm,
+    backgroundColor: colors.accent,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
   },
-  discountText: { color: colors.white, fontSize: 12, fontWeight: '700' },
-  body: { padding: space.md, gap: 4 },
+  discountText: { color: colors.text, fontSize: 13, fontWeight: '800' },
+  body: { paddingHorizontal: space.lg, paddingTop: space.md, paddingBottom: space.lg, gap: 5 },
   headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm },
-  partner: { fontSize: 16, fontWeight: '700', color: colors.text, flex: 1 },
+  partner: { fontSize: 17, fontWeight: '800', color: colors.text, flex: 1 },
   rating: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   ratingText: { fontSize: 13, fontWeight: '600', color: colors.text },
   title: { fontSize: 14, color: colors.muted },
@@ -123,5 +119,5 @@ const styles = StyleSheet.create({
   dot: { color: colors.faint },
   priceRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'flex-end', gap: space.sm, marginTop: 2 },
   value: { fontSize: 13, color: colors.faint, textDecorationLine: 'line-through' },
-  price: { fontSize: 18, fontWeight: '800', color: colors.brandDark },
+  price: { fontSize: 18, fontFamily: fonts.display, color: colors.text },
 });

@@ -23,6 +23,11 @@ export function StatusPage() {
             {p.rejectReason && <p className="alert alert-error">{t('status.reason', { reason: p.rejectReason })}</p>}
             <p className="muted">{t('status.contact')}</p>
             <div className="row wrap center">
+              {isOwner && p.status === 'REJECTED' && (
+                <Link className="btn btn-primary" to="/p/reapply">
+                  {t('status.reapply')}
+                </Link>
+              )}
               <Link className="btn" to="/p/offers">
                 {t('nav.offers')}
               </Link>

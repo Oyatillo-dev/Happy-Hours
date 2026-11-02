@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
+import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -17,7 +18,7 @@ import { confirm, notice } from '@/lib/confirm';
 import { fmtCountdown, fmtDateTime, fmtDuration, fmtMoney, fmtTime, fmtWindow } from '@/lib/format';
 import { openRoute } from '@/lib/route';
 import { useNow } from '@/lib/useNow';
-import { colors, radius, space } from '@/theme';
+import { colors, fonts, radius, shadow, space } from '@/theme';
 import { useQueryClient } from '@tanstack/react-query';
 
 const PAYMENT_POLL_MS = 90_000;
@@ -50,8 +51,13 @@ export default function OrderScreen() {
           // No custom-scheme redirect on web: open the bank page in a new tab and poll.
           await WebBrowser.openBrowserAsync(url);
         } else {
-          // The mock bank page links back to happyhours://orders/{id}, which closes the session.
-          await WebBrowser.openAuthSessionAsync(url, 'happyhours://');
+          // Our own deep link: happyhours://orders/{id} in a build, exp://…/--/orders/{id} in Expo Go.
+          // The bank page sends the buyer there after paying, which closes the session.
+          const returnUrl = Linking.createURL(`orders/${o.id}`);
+          const withReturn = url.includes('/mock-pay/')
+            ? `${url}${url.includes('?') ? '&' : '?'}return=${encodeURIComponent(returnUrl)}`
+            : url;
+          await WebBrowser.openAuthSessionAsync(withReturn, returnUrl);
           await qc.invalidateQueries({ queryKey: keys.order(o.id) });
         }
       } catch (e) {
@@ -340,19 +346,19 @@ const styles = StyleSheet.create({
   muted: { fontSize: 14, color: colors.muted, lineHeight: 20 },
   centerMuted: { fontSize: 14, color: colors.muted, textAlign: 'center', lineHeight: 20 },
   countdown: {
-    fontSize: 48,
-    fontWeight: '800',
+    fontSize: 44,
+    fontFamily: fonts.display,
     color: colors.brandDark,
     textAlign: 'center',
     fontVariant: ['tabular-nums'],
   },
   qrCard: { alignItems: 'center', gap: space.md },
-  qrBox: { padding: space.sm, backgroundColor: colors.white, borderRadius: radius.md },
+  qrBox: { padding: space.md, backgroundColor: colors.white, borderRadius: radius.lg, ...shadow.raiseSm },
   codeLabel: { fontSize: 13, color: colors.muted, textTransform: 'uppercase', letterSpacing: 1 },
   code: {
-    fontSize: 44,
-    fontWeight: '800',
-    letterSpacing: 6,
+    fontSize: 36,
+    fontFamily: fonts.display,
+    letterSpacing: 5,
     color: colors.text,
     fontVariant: ['tabular-nums'],
     marginTop: -space.sm,
@@ -384,8 +390,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
   textArea: {
     minHeight: 80,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.inset,
     borderRadius: radius.md,
     padding: space.md,
     fontSize: 15,
