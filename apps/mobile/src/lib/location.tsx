@@ -4,6 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 /** Bishkek city centre — used when location permission is denied or unavailable. */
 export const BISHKEK = { lat: 42.8746, lng: 74.5698 };
 
+/** How long the feed waits for a position before falling back to the city centre. */
+const LOCATION_WAIT_MS = 4000;
+
 export interface UserLocation {
   lat: number;
   lng: number;
@@ -19,6 +22,9 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState({ ...BISHKEK, precise: false, ready: false });
 
   const load = useCallback(async () => {
+    // A GPS fix can take minutes indoors (or never come); the feed must not wait for it.
+    // After a short wait show the city centre and let the real position refine it later.
+    const fallback = setTimeout(() => setState((s) => (s.ready ? s : { ...s, ready: true })), LOCATION_WAIT_MS);
     try {
       const perm = await Location.requestForegroundPermissionsAsync();
       if (perm.status !== 'granted') {
@@ -32,6 +38,8 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       setState({ lat: pos.coords.latitude, lng: pos.coords.longitude, precise: true, ready: true });
     } catch {
       setState((s) => (s.precise ? { ...s, ready: true } : { ...BISHKEK, precise: false, ready: true }));
+    } finally {
+      clearTimeout(fallback);
     }
   }, []);
 

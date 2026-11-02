@@ -26,6 +26,12 @@ const schema = z.object({
     .string()
     .default('false')
     .transform((v) => v === 'true'),
+  // Test servers without an SMS gateway: return the login code in the API response (as in
+  // development) so testers can sign in. Anyone could then sign in as anyone: never on a live server.
+  SHOW_OTP_CODES: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -43,6 +49,9 @@ function productionProblems(env: z.infer<typeof schema>) {
   if (env.PAYMENT_PROVIDER === 'mock' && !env.ALLOW_MOCK_PAYMENTS) {
     problems.push('PAYMENT_PROVIDER=mock lets anyone pay without money; connect a bank or set ALLOW_MOCK_PAYMENTS=true for a test server');
   }
+  if (env.SMS_PROVIDER === 'console' && !env.SHOW_OTP_CODES) {
+    problems.push('SMS_PROVIDER=console sends no SMS, so nobody could sign in; connect an SMS gateway or set SHOW_OTP_CODES=true for a test server');
+  }
   if (!env.ADMIN_PHONES.trim()) problems.push('ADMIN_PHONES is empty');
   return problems;
 }
@@ -52,6 +61,9 @@ if (parsed.data.NODE_ENV === 'production') {
   if (problems.length) {
     console.error(`Refusing to start in production:\n- ${problems.join('\n- ')}`);
     process.exit(1);
+  }
+  if (parsed.data.ALLOW_MOCK_PAYMENTS || parsed.data.SHOW_OTP_CODES) {
+    console.warn('TEST SERVER: mock payments and/or login codes in API responses are enabled. Do not use for real customers.');
   }
 }
 

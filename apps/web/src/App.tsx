@@ -3,7 +3,7 @@ import { useAuth } from './auth/AuthContext';
 import { ErrorBox, Spinner } from './components/ui';
 import { useI18n } from './i18n';
 import { AdminApp } from './pages/admin/AdminApp';
-import { ApplyPage } from './pages/Apply';
+import { BuyerHome } from './pages/BuyerHome';
 import { LoginPage } from './pages/Login';
 import { PartnerApp } from './pages/partner/PartnerApp';
 
@@ -24,7 +24,7 @@ export function App() {
     );
   }
 
-  if (me.role === 'BUYER') return <ApplyPage />;
+  if (me.role === 'BUYER') return <BuyerHome />;
 
   const isPartner = me.role === 'PARTNER_OWNER' || me.role === 'PARTNER_STAFF';
   const home = isPartner ? '/p' : '/a';
