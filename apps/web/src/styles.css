@@ -251,10 +251,15 @@ code {
   background: transparent;
   border-color: transparent;
 }
-.btn-light {
+/* Always white on a coloured panel, so its text stays dark in the dark theme too. */
+.btn-light,
+.btn-light:hover {
   background: #fff;
-  color: var(--text);
-  border-color: #fff;
+  color: #18241b;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 18%);
+}
+.btn-light:hover {
+  background: #f1f5f0;
 }
 .btn-sm {
   min-height: 32px;
