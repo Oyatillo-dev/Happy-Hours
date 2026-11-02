@@ -1,0 +1,51 @@
+# Render Blueprint: Render → New → Blueprint → this repository.
+# Creates the PostgreSQL database and the API (from apps/api/Dockerfile) with a disk for
+# uploaded photos. The cabinet (apps/web) is deployed separately on Vercel.
+databases:
+  - name: happy-hours-db
+    plan: basic-256mb
+    region: frankfurt
+    databaseName: happyhours
+    user: hh
+
+services:
+  - type: web
+    name: happy-hours-api
+    runtime: docker
+    # Always-on: the API runs a job every minute (expiring reservations, no-shows,
+    # refund retries), which a free instance that sleeps when idle would skip.
+    plan: starter
+    region: frankfurt
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    disk:
+      name: uploads
+      mountPath: /app/apps/api/uploads
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: happy-hours-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PAYMENT_WEBHOOK_SECRET
+        generateValue: true
+      - key: ADMIN_PHONES
+        value: "+996700000001"
+      # The cabinet on Vercel; add your own domain here later, comma separated.
+      - key: CORS_ORIGINS
+        value: https://happy-hours-seven.vercel.app
+      # Render's load balancer is the one proxy in front of the API.
+      - key: TRUST_PROXY
+        value: "1"
+      - key: PUSH_PROVIDER
+        value: expo
+      # TEST SERVER until a bank and Nikita.kg are connected: payments without money and
+      # login codes shown on screen. Remove both before real customers use the service.
+      - key: ALLOW_MOCK_PAYMENTS
+        value: "true"
+      - key: SHOW_OTP_CODES
+        value: "true"

@@ -61,9 +61,11 @@ export async function buildApp() {
 
   app.setErrorHandler(errorHandler);
 
-  app.get('/health', async () => {
+  // `ip` is the caller's address as the API sees it: a quick check that TRUST_PROXY
+  // matches the hosting (rate limits are keyed on it).
+  app.get('/health', async (request) => {
     await prisma.$queryRaw`SELECT 1`;
-    return { ok: true };
+    return { ok: true, ip: request.ip };
   });
 
   await app.register(authRoutes);

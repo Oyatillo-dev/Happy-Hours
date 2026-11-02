@@ -4,7 +4,11 @@ import { z } from 'zod';
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().default(4000),
-  PUBLIC_URL: z.string().url().default('http://localhost:4000'),
+  // Render sets RENDER_EXTERNAL_URL to the service's public address.
+  PUBLIC_URL: z
+    .string()
+    .url()
+    .default(process.env.RENDER_EXTERNAL_URL ?? 'http://localhost:4000'),
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string().min(8),
   PAYMENT_WEBHOOK_SECRET: z.string().min(8),
