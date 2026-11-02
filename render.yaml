@@ -3,7 +3,7 @@
 # uploaded photos. The cabinet (apps/web) is deployed separately on Vercel.
 databases:
   - name: happy-hours-db
-    plan: basic-256mb
+    plan: 0.1c-256mb
     region: frankfurt
     databaseName: happyhours
     user: hh
@@ -14,7 +14,7 @@ services:
     runtime: docker
     # Always-on: the API runs a job every minute (expiring reservations, no-shows,
     # refund retries), which a free instance that sleeps when idle would skip.
-    plan: starter
+    plan: 0.5c-512mb
     region: frankfurt
     dockerfilePath: ./apps/api/Dockerfile
     dockerContext: .
