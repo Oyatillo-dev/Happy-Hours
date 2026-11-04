@@ -279,6 +279,7 @@ export const ru = {
   'schedules.empty': 'Расписаний нет',
   'schedules.weekdays': 'Дни недели',
   'schedules.everyday': 'Каждый день',
+  'schedules.perDay': '{n} шт. в день',
   'schedules.paused': 'Выключено',
   'schedules.deleteConfirm': 'Отключить это расписание?',
   'schedules.removeConfirm': 'Удалить это расписание навсегда? Уже опубликованные боксы и заказы сохранятся.',

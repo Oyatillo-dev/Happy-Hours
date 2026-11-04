@@ -1,4 +1,4 @@
-import { CalendarClock } from 'lucide-react';
+import { CalendarClock, Clock, MapPin, Package, Pause, Pencil, Play, Trash2 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { partnerApi } from '../../api/endpoints';
@@ -43,54 +43,60 @@ export function SchedulesPage() {
           items.length === 0 ? (
             <Empty icon={CalendarClock}>{t('schedules.empty')}</Empty>
           ) : (
-            <div className="table-wrap">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>{t('offers.template')}</th>
-                    <th>{t('offers.location')}</th>
-                    <th>{t('schedules.weekdays')}</th>
-                    <th>{t('orders.window')}</th>
-                    <th className="num">{t('orders.qty')}</th>
-                    <th>{t('common.status')}</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((s) => (
-                    <tr key={s.id} className={s.active ? '' : 'row-muted'}>
-                      <td>{s.template.title}</td>
-                      <td>{s.location.name}</td>
-                      <td>{days(s)}</td>
-                      <td>
+            <div className="cards">
+              {items.map((s) => (
+                <article key={s.id} className={`card schedule-card ${s.active ? '' : 'is-cancelled'}`}>
+                  <div className="row-between">
+                    <h3>{s.template.title}</h3>
+                    {s.active ? <Badge tone="green">{t('common.active')}</Badge> : <Badge>{t('schedules.paused')}</Badge>}
+                  </div>
+                  <div className="schedule-meta">
+                    <MapPin size={16} aria-hidden /> {s.location.name}
+                  </div>
+                  <div className="weekday-dots" aria-label={days(s)}>
+                    {DAYS.map((d) => (
+                      <span key={d} className={s.weekdays.includes(d) ? 'on' : ''} aria-hidden>
+                        {t(`weekday.${d}` as DictKey)}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="schedule-facts">
+                    <span>
+                      <Clock size={18} aria-hidden />
+                      <strong>
                         {s.pickupFromTime}–{s.pickupToTime}
-                      </td>
-                      <td className="num">{s.quantity}</td>
-                      <td>{s.active ? <Badge tone="green">{t('common.active')}</Badge> : <Badge>{t('schedules.paused')}</Badge>}</td>
-                      <td className="actions">
-                        <button type="button" className="btn btn-sm" onClick={() => setEditing(s)}>
-                          {t('common.edit')}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost"
-                          onClick={() => (!s.active || window.confirm(t('schedules.deleteConfirm'))) && toggle.mutate(s)}
-                        >
-                          {s.active ? t('common.disable') : t('common.enable')}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost"
-                          disabled={remove.isPending}
-                          onClick={() => window.confirm(t('schedules.removeConfirm')) && remove.mutate(s)}
-                        >
-                          {t('common.delete')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </strong>
+                    </span>
+                    <span>
+                      <Package size={18} aria-hidden />
+                      {t('schedules.perDay', { n: s.quantity })}
+                    </span>
+                  </div>
+                  <div className="row wrap schedule-actions">
+                    <button type="button" className="btn btn-sm" onClick={() => setEditing(s)}>
+                      <Pencil size={15} aria-hidden /> {t('common.edit')}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      onClick={() => (!s.active || window.confirm(t('schedules.deleteConfirm'))) && toggle.mutate(s)}
+                    >
+                      {s.active ? <Pause size={15} aria-hidden /> : <Play size={15} aria-hidden />}{' '}
+                      {s.active ? t('common.disable') : t('common.enable')}
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-btn schedule-delete"
+                      aria-label={t('common.delete')}
+                      title={t('common.delete')}
+                      disabled={remove.isPending}
+                      onClick={() => window.confirm(t('schedules.removeConfirm')) && remove.mutate(s)}
+                    >
+                      <Trash2 size={18} aria-hidden />
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           )
         }

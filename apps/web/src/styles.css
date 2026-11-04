@@ -1564,3 +1564,61 @@ textarea.input {
   width: min(420px, 100%);
   margin: 16px 0 0;
 }
+
+/* ---------- schedules ---------- */
+.schedule-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.schedule-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+}
+.weekday-dots {
+  display: flex;
+  gap: 6px;
+}
+.weekday-dots span {
+  flex: 1;
+  max-width: 40px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-3);
+  background: var(--bg);
+  box-shadow: var(--inset);
+}
+.weekday-dots span.on {
+  color: var(--on-green);
+  background: var(--green);
+  box-shadow: none;
+}
+.schedule-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.schedule-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.schedule-facts svg {
+  color: var(--green);
+}
+.schedule-facts strong {
+  font-size: 18px;
+}
+.schedule-actions {
+  align-items: center;
+}
+.schedule-delete {
+  margin-left: auto;
+  color: var(--red);
+}

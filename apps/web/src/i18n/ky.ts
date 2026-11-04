@@ -275,6 +275,7 @@ export const ky: Dict = {
   'schedules.empty': 'Ырааттама жок',
   'schedules.weekdays': 'Апта күндөрү',
   'schedules.everyday': 'Күн сайын',
+  'schedules.perDay': 'Күнүнө {n} даана',
   'schedules.paused': 'Өчүрүлгөн',
   'schedules.deleteConfirm': 'Бул ырааттаманы өчүрөсүзбү?',
   'schedules.removeConfirm': 'Бул ырааттаманы биротоло жок кыласызбы? Жарыяланган кутулар жана буйрутмалар сакталат.',
