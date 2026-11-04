@@ -1,6 +1,6 @@
 import type { ExpoConfig } from 'expo/config';
 
-const BRAND = '#1f8a4c';
+const BRAND = '#47230f';
 // EAS project on expo.dev (team oyatilloss-team); used for EAS Update and push tokens.
 const easProjectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID ?? '7b1d4887-8d8d-4012-9e09-c4834dae8358';
 
@@ -25,7 +25,7 @@ const config: ExpoConfig = {
   android: {
     package: 'kg.sakta.app',
     adaptiveIcon: {
-      backgroundColor: '#E8F5EC',
+      backgroundColor: '#47230f',
       foregroundImage: './assets/android-icon-foreground.png',
       backgroundImage: './assets/android-icon-background.png',
       monochromeImage: './assets/android-icon-monochrome.png',

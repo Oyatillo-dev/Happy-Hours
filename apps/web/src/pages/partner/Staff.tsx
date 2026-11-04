@@ -1,4 +1,4 @@
-import { Users } from 'lucide-react';
+import { MapPin, Phone, Trash2, Users } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { partnerApi } from '../../api/endpoints';
@@ -39,44 +39,41 @@ export function StaffPage() {
           items.length === 0 ? (
             <Empty icon={Users}>{t('staff.empty')}</Empty>
           ) : (
-            <div className="table-wrap">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>{t('common.name')}</th>
-                    <th>{t('common.phone')}</th>
-                    <th>{t('au.role')}</th>
-                    <th>{t('staff.location')}</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((u) => (
-                    <tr key={u.id}>
-                      <td>
-                        {u.name ?? '—'} {u.id === me?.id && <span className="muted">({t('staff.you')})</span>}
-                      </td>
-                      <td className="mono">{phone(u.phone)}</td>
-                      <td>
-                        <Badge tone={u.role === 'PARTNER_OWNER' ? 'blue' : 'gray'}>{t(`role.${u.role}` as DictKey)}</Badge>
-                      </td>
-                      <td>{u.role === 'PARTNER_OWNER' ? t('staff.allLocations') : locName(u.locationId)}</td>
-                      <td className="actions">
-                        {u.role === 'PARTNER_STAFF' && (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-danger-ghost"
-                            disabled={remove.isPending}
-                            onClick={() => window.confirm(t('staff.removeConfirm', { name: u.name ?? phone(u.phone) })) && remove.mutate(u.id)}
-                          >
-                            {t('common.delete')}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="cards">
+              {items.map((u) => (
+                <article key={u.id} className="card staff-card">
+                  <div className="staff-avatar" aria-hidden>
+                    {(u.name ?? '?').trim().charAt(0).toUpperCase()}
+                  </div>
+                  <div className="grow stack-sm">
+                    <div className="staff-name">
+                      {u.name ?? '—'} {u.id === me?.id && <span className="muted">({t('staff.you')})</span>}
+                    </div>
+                    <a className="staff-line" href={`tel:${u.phone}`}>
+                      <Phone size={15} aria-hidden /> {phone(u.phone)}
+                    </a>
+                    <div className="staff-line muted">
+                      <MapPin size={15} aria-hidden />
+                      {u.role === 'PARTNER_OWNER' ? t('staff.allLocations') : locName(u.locationId)}
+                    </div>
+                    <div>
+                      <Badge tone={u.role === 'PARTNER_OWNER' ? 'blue' : 'gray'}>{t(`role.${u.role}` as DictKey)}</Badge>
+                    </div>
+                  </div>
+                  {u.role === 'PARTNER_STAFF' && (
+                    <button
+                      type="button"
+                      className="icon-btn staff-delete"
+                      aria-label={t('common.delete')}
+                      title={t('common.delete')}
+                      disabled={remove.isPending}
+                      onClick={() => window.confirm(t('staff.removeConfirm', { name: u.name ?? phone(u.phone) })) && remove.mutate(u.id)}
+                    >
+                      <Trash2 size={18} aria-hidden />
+                    </button>
+                  )}
+                </article>
+              ))}
             </div>
           )
         }

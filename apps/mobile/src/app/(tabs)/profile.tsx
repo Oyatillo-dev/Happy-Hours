@@ -189,7 +189,7 @@ function Impact({ icon, value, label }: { icon: IconName; value: string; label: 
 
 function MenuItem({ icon, label, badge, onPress }: { icon: IconName; label: string; badge?: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.menu, pressed && { backgroundColor: '#f7f9f7' }]}>
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.menu, pressed && { backgroundColor: colors.inset }]}>
       <Ionicons name={icon} size={20} color={colors.text} />
       <Text style={styles.menuText}>{label}</Text>
       {badge ? (

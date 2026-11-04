@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     padding: space.md,
     borderRadius: radius.lg,
   },
-  unread: { borderWidth: 1, borderColor: '#cfe8d7' },
+  unread: { borderWidth: 1, borderColor: colors.sky },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'transparent' },
   title: { fontSize: 15, fontWeight: '700', color: colors.text },
   body: { fontSize: 14, color: colors.muted, lineHeight: 20 },

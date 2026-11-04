@@ -172,7 +172,7 @@ export function Badge({ label, tone = 'brand' }: { label: string; tone?: 'brand'
   const p = {
     brand: { bg: colors.brandSoft, fg: colors.brandDark },
     warning: { bg: colors.warningSoft, fg: colors.warning },
-    muted: { bg: '#eef1ee', fg: colors.muted },
+    muted: { bg: colors.inset, fg: colors.muted },
     danger: { bg: colors.dangerSoft, fg: colors.danger },
   }[tone];
   return (
