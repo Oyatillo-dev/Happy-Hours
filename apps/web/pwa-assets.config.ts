@@ -1,9 +1,9 @@
 import { defineConfig, type Preset } from '@vite-pwa/assets-generator/config';
 
 // App icons for the installed web app, generated from public/icon.svg at build time.
-// Maskable (Android) and Apple icons fill the rounded corners with the brand chocolate, since
+// Maskable (Android) and Apple icons fill the rounded corners with the brand colour, since
 // the phone applies its own icon shape.
-const brandFill = { padding: 0, resizeOptions: { background: '#47230f' } };
+const brandFill = { padding: 0, resizeOptions: { background: '#8f4309' } };
 
 const preset: Preset = {
   transparent: { sizes: [64, 192, 512], favicons: [[48, 'favicon.ico']], padding: 0 },

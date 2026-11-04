@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { partnerApi } from '../../api/endpoints';
 import { LangSwitch } from '../../components/LangSwitch';
+import { PhoneInput } from '../../components/PhoneInput';
 import { ErrorBox, Field, PageHeader, PartnerStatusBadge, QueryView, useToast } from '../../components/ui';
 import { useI18n, type DictKey } from '../../i18n';
 import { dateOnly, phone } from '../../lib/format';
@@ -93,7 +94,7 @@ function EditForm({ initial }: { initial: { brandName: string; contactPhone: str
         <input className="input" value={d.brandName} maxLength={80} onChange={set('brandName')} />
       </Field>
       <Field label={t('apply.contactPhone')} error={show(errs.contactPhone)} hint={phone(initial.contactPhone)}>
-        <input className="input" type="tel" value={d.contactPhone} onChange={set('contactPhone')} />
+        <PhoneInput value={d.contactPhone} onChange={(v) => setD((x) => ({ ...x, contactPhone: v }))} />
       </Field>
       <Field label={t('apply.bankName')} error={show(errs.bankName)}>
         <input className="input" value={d.bankName} maxLength={100} onChange={set('bankName')} />

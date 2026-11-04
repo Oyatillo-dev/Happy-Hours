@@ -4,6 +4,7 @@ import { authApi } from '../api/endpoints';
 import { useAuth } from '../auth/AuthContext';
 import { InstallPrompt } from '../components/InstallPrompt';
 import { LangSwitch } from '../components/LangSwitch';
+import { PhoneInput } from '../components/PhoneInput';
 import { ErrorBox, Field } from '../components/ui';
 import { useI18n } from '../i18n';
 import { phone as fmtPhone } from '../lib/format';
@@ -63,16 +64,7 @@ export function LoginPage() {
           <form onSubmit={onRequest} className="stack">
             <p className="muted">{t('auth.subtitle')}</p>
             <Field label={t('auth.phone')} error={phoneError}>
-              <input
-                className="input input-lg"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                autoFocus
-                value={phoneInput}
-                placeholder={t('auth.phonePlaceholder')}
-                onChange={(e) => setPhoneInput(e.target.value)}
-              />
+              <PhoneInput large autoFocus value={phoneInput} onChange={setPhoneInput} />
             </Field>
             {request.error && <ErrorBox error={request.error} />}
             <button className="btn btn-primary btn-lg" disabled={request.isPending}>

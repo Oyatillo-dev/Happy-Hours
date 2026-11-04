@@ -72,6 +72,17 @@ export function fmtPhone(phone: string): string {
   return phone;
 }
 
+/**
+ * What the login field shows after its fixed +996: the local digits grouped by three
+ * ("700 123 456"). A pasted full number (+996…, 0…) keeps only its local part.
+ */
+export function formatLocalPhone(input: string) {
+  let d = input.replace(/\D/g, '');
+  if (d.startsWith('996') && d.length > 9) d = d.slice(3);
+  else if (d.startsWith('0') && d.length > 9) d = d.slice(1);
+  return d.slice(0, 9).replace(/(\d{3})(?=\d)/g, '$1 ');
+}
+
 /** Same rules as the API's normalizePhone: returns +996XXXXXXXXX or null. */
 export function normalizePhone(input: string): string | null {
   const digits = input.replace(/\D/g, '');

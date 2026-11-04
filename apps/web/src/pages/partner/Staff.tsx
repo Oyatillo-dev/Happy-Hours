@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { partnerApi } from '../../api/endpoints';
 import { useAuth } from '../../auth/AuthContext';
+import { PhoneInput } from '../../components/PhoneInput';
 import { Badge, Empty, ErrorBox, Field, Modal, PageHeader, QueryView, useToast } from '../../components/ui';
 import { useI18n, type DictKey } from '../../i18n';
 import { phone } from '../../lib/format';
@@ -123,7 +124,7 @@ function AddStaffModal({ onClose }: { onClose: () => void }) {
     >
       <div className="stack">
         <Field label={t('common.phone')} error={submitted ? phoneErr : null}>
-          <input className="input" type="tel" value={p} onChange={(e) => setP(e.target.value)} />
+          <PhoneInput value={p} onChange={setP} />
         </Field>
         <Field label={t('common.name')} error={submitted ? nameErr : null}>
           <input className="input" value={name} maxLength={80} onChange={(e) => setName(e.target.value)} />

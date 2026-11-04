@@ -2,12 +2,12 @@
    Soft UI: surfaces share the page colour and stand out by light/dark shadow pairs
    (--raise) or sink in (--inset) instead of borders. */
 :root {
-  /* "Chocolate & cream": chocolate fills, cream page, ice-blue links and highlights,
+  /* Cinnamon brown fills on a cream page, chocolate text, ice-blue links and highlights,
      cherry for discounts and danger. Green only means "done / active". */
-  --brand: #47230f;
-  --brand-600: #5e3219;
-  --brand-50: #efe3cf;
-  --on-brand: #f8f2dc;
+  --brand: #8f4309;
+  --brand-600: #7a3907;
+  --brand-50: #f3e1cd;
+  --on-brand: #fff8ec;
   --link: #2c5a8f;
   --sky: #b5d0f3;
   /* active bottom-bar item */
@@ -36,7 +36,7 @@
   --raise: 8px 8px 18px rgb(178 160 126 / 45%), -8px -8px 18px rgb(255 253 246 / 90%);
   --raise-sm: 4px 4px 10px rgb(178 160 126 / 40%), -4px -4px 10px rgb(255 253 246 / 90%);
   --inset: inset 3px 3px 8px rgb(178 160 126 / 40%), inset -3px -3px 8px rgb(255 253 246 / 90%);
-  --glow: 0 6px 16px rgb(71 35 15 / 28%);
+  --glow: 0 6px 16px rgb(143 67 9 / 30%);
   --shadow: var(--raise);
   --radius: 22px;
   --radius-sm: 14px;
@@ -54,10 +54,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Java brown page; cream fills with chocolate text */
-    --brand: #f5efc6;
-    --brand-600: #fff8d8;
-    --brand-50: #3a2b22;
+    /* Java brown page; a lighter cinnamon so fills and icons stay readable */
+    --brand: #d4793a;
+    --brand-600: #e08a4a;
+    --brand-50: #3d2618;
     --on-brand: #2a1a12;
     --link: #b5d0f3;
     --sky: #b5d0f3;
@@ -1672,4 +1672,31 @@ textarea.input {
 }
 .staff-delete {
   color: var(--red);
+}
+
+/* ---------- phone field: fixed +996, local digits typed after it ---------- */
+.phone-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.phone-field:focus-within {
+  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  outline-offset: 1px;
+}
+.phone-prefix {
+  color: var(--text-2);
+  font-weight: 600;
+  user-select: none;
+}
+.phone-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: 0.02em;
 }

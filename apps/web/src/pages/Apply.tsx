@@ -5,6 +5,7 @@ import { partnerApi } from '../api/endpoints';
 import { PARTNER_CATEGORIES, type PartnerCategory, type PartnerWithLocations } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { LangSwitch } from '../components/LangSwitch';
+import { PhoneInput } from '../components/PhoneInput';
 import { ErrorBox, Field } from '../components/ui';
 import { useI18n, type DictKey } from '../i18n';
 import { phone } from '../lib/format';
@@ -129,7 +130,7 @@ export function ApplyPage({ rejected }: { rejected?: PartnerWithLocations }) {
             </select>
           </Field>
           <Field label={t('apply.contactPhone')} error={err('contactPhone')}>
-            <input className="input" type="tel" value={d.contactPhone} onChange={set('contactPhone')} />
+            <PhoneInput value={d.contactPhone} onChange={(v) => setD((x) => ({ ...x, contactPhone: v }))} />
           </Field>
         </div>
       </section>

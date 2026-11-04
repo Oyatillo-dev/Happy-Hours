@@ -7,7 +7,7 @@ import type { AuthResponse, User } from '@/api/types';
 import { useAuth } from '@/auth/AuthContext';
 import { Banner, Button } from '@/components/ui';
 import { fmt, useI18n } from '@/i18n';
-import { fmtPhone, normalizePhone } from '@/lib/format';
+import { fmtPhone, formatLocalPhone, normalizePhone } from '@/lib/format';
 import { useNow } from '@/lib/useNow';
 import { colors, fonts, radius, shadow, space } from '@/theme';
 
@@ -128,7 +128,7 @@ export default function LoginScreen() {
                 testID="phone-input"
                 value={phoneInput}
                 onChangeText={(v) => {
-                  setPhoneInput(v);
+                  setPhoneInput(formatLocalPhone(v));
                   setError(null);
                 }}
                 placeholder="700 123 456"

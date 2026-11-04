@@ -1,11 +1,11 @@
 import type { Category } from '@/api/types';
 
-// Soft UI, "chocolate & cream": a cream page with lighter raised surfaces on warm shadows,
-// chocolate for actions, ice blue for highlights, cherry for discounts and danger.
+// Soft UI: a cream page with lighter raised surfaces on warm shadows, cinnamon brown for
+// actions, ice blue for highlights, cherry for discounts and danger.
 export const colors = {
-  brand: '#47230f',
-  brandDark: '#2a1a12',
-  brandSoft: '#efe3cf',
+  brand: '#8f4309',
+  brandDark: '#6b3207',
+  brandSoft: '#f3e1cd',
   accent: '#c48a1c',
   sky: '#b5d0f3',
   skySoft: '#dfe9f7',
@@ -50,7 +50,7 @@ export const shadow = {
     elevation: 2,
   },
   glow: {
-    shadowColor: '#47230f',
+    shadowColor: '#8f4309',
     shadowOpacity: 0.35,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
