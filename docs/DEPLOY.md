@@ -45,6 +45,17 @@ npm run update:preview -- --message "что изменилось"
 
 Тестеры получают её при следующем запуске приложения (иногда — со второго запуска). Когда выйдет Expo Go на новом SDK, проект нужно обновить до того же SDK и выложить заново.
 
+**Настоящее приложение на Android (APK).** Сборка на серверах Expo, файл ставится по ссылке без магазина:
+
+```bash
+cd apps/mobile
+npx eas-cli build -p android --profile preview
+```
+
+Ссылка на APK — в выводе команды и на expo.dev (**Builds**). Установленное приложение получает обновления кода из того же канала `preview` (`npm run update:preview`), пересобирать нужно только при смене нативных модулей или версии Expo SDK.
+
+Карта в сборке для Android работает только с ключом Google Maps: Google Cloud Console → **Maps SDK for Android** → ключ с ограничением на пакет `kg.sakta.app`; затем на expo.dev переменная `GOOGLE_MAPS_ANDROID_API_KEY` (окружение `preview`, видимость Sensitive) и новая сборка. Без ключа вместо карты показывается список заведений.
+
 Для разработки на своём компьютере: `EXPO_PUBLIC_API_URL=https://… npx expo start`.
 
 ## Демо-данные (по желанию)
