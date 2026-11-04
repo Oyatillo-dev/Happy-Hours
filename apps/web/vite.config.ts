@@ -21,7 +21,7 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#f5f1e8',
-        theme_color: '#176b52',
+        theme_color: '#f5f1e8',
         shortcuts: [
           { name: 'Боксы', url: '/p/offers' },
           { name: 'Выдача заказа', url: '/p/issue' },

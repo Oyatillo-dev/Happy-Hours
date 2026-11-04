@@ -247,6 +247,8 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: radius.lg,
     padding: space.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
     ...shadow.raise,
   },
   sectionTitle: { fontSize: 18, fontWeight: '800', color: colors.text, marginBottom: space.sm },

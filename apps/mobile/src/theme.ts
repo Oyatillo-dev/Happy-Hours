@@ -22,7 +22,7 @@ export const colors = {
   text: '#173b35',
   muted: '#4c625b',
   faint: '#7a8a84',
-  border: '#e2dccb',
+  border: '#ddd5c2',
   danger: '#b42318',
   dangerSoft: '#fbe4dc',
   warning: '#8a5600',

@@ -83,12 +83,12 @@ export function Shell({ title, nav, banner }: { title: DictKey; nav: NavItem[]; 
         <nav className="bottombar">
           {primary.map((n) => (
             <NavLink key={n.to} to={n.to} className={({ isActive }) => `bottom-link ${isActive ? 'active' : ''}`}>
-              <n.icon className="bottom-icon" size={24} strokeWidth={1.9} aria-hidden />
+              <n.icon className="bottom-icon" size={27} strokeWidth={1.9} aria-hidden />
               <span>{t(n.short ?? n.label)}</span>
             </NavLink>
           ))}
           <button type="button" className="bottom-link" onClick={() => setMenuOpen(true)}>
-            <Menu className="bottom-icon" size={24} strokeWidth={1.9} aria-hidden />
+            <Menu className="bottom-icon" size={27} strokeWidth={1.9} aria-hidden />
             <span>{t('nav.menu')}</span>
           </button>
         </nav>
