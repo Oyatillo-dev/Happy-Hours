@@ -233,11 +233,11 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: colors.brand,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { color: colors.white, fontSize: 22, fontWeight: '700' },
+  avatarText: { color: colors.onPrimary, fontSize: 22, fontWeight: '700' },
   name: { fontSize: 18, fontWeight: '700', color: colors.text },
   nameInput: {
     fontSize: 18,

@@ -2,41 +2,43 @@
    Soft UI: surfaces share the page colour and stand out by light/dark shadow pairs
    (--raise) or sink in (--inset) instead of borders. */
 :root {
-  /* Cinnamon brown fills on a cream page, chocolate text, ice-blue links and highlights,
-     cherry for discounts and danger. Green only means "done / active". */
-  --brand: #8f4309;
-  --brand-600: #7a3907;
-  --brand-50: #f3e1cd;
-  --on-brand: #fff8ec;
-  --link: #2c5a8f;
-  --sky: #b5d0f3;
+  /* "Electric Citrus": lime fills with dark text, coral accents, cream page, white cards.
+     Lime and coral are too light for text on cream, so text and icons use --brand-ink. */
+  --brand: #b5d92b;
+  --brand-600: #a5c81f;
+  --brand-50: #edf4cc;
+  --brand-ink: #4a6410;
+  --on-brand: #222b20;
+  --link: #4a6410;
+  --sky: #b5d92b;
   /* active bottom-bar item */
-  --active-pill: color-mix(in srgb, #b5d0f3 60%, transparent);
-  --active-ink: var(--brand);
-  --cherry: #8f1418;
-  --accent: #c48a1c;
-  --bg: #f6f1e3;
-  --surface: #fbf8ef;
-  --surface-2: #ece4cf;
-  --text: #2a1a12;
-  --text-2: #6b5444;
-  --text-3: #705848;
-  --border: #e2d8c0;
+  --active-pill: color-mix(in srgb, #b5d92b 55%, transparent);
+  --active-ink: #222b20;
+  --cherry: #b3401f;
+  --accent: #ff784f;
+  --on-accent: #222b20;
+  --bg: #f5f2d8;
+  --surface: #ffffff;
+  --surface-2: #ebe7c8;
+  --text: #222b20;
+  --text-2: #565f51;
+  --text-3: #5b6556;
+  --border: #e0dcb8;
   --success: #2a6f43;
   --success-50: #e3efdc;
   --on-success: #fff;
-  --red: #a0191d;
-  --red-50: #f8e4dc;
+  --red: #b42318;
+  --red-50: #fbe4dc;
   --on-red: #fff;
   --yellow: #8a5600;
   --yellow-50: #f9ebc9;
   --blue: #2c5a8f;
   --blue-50: #dfe9f7;
-  --gray-50: #efe8d6;
-  --raise: 8px 8px 18px rgb(178 160 126 / 45%), -8px -8px 18px rgb(255 253 246 / 90%);
-  --raise-sm: 4px 4px 10px rgb(178 160 126 / 40%), -4px -4px 10px rgb(255 253 246 / 90%);
-  --inset: inset 3px 3px 8px rgb(178 160 126 / 40%), inset -3px -3px 8px rgb(255 253 246 / 90%);
-  --glow: 0 6px 16px rgb(143 67 9 / 30%);
+  --gray-50: #efecd3;
+  --raise: 8px 8px 18px rgb(170 164 118 / 42%), -8px -8px 18px rgb(255 255 255 / 90%);
+  --raise-sm: 4px 4px 10px rgb(170 164 118 / 38%), -4px -4px 10px rgb(255 255 255 / 90%);
+  --inset: inset 3px 3px 8px rgb(170 164 118 / 40%), inset -3px -3px 8px rgb(255 255 255 / 90%);
+  --glow: 0 6px 16px rgb(140 170 20 / 35%);
   --shadow: var(--raise);
   --radius: 22px;
   --radius-sm: 14px;
@@ -54,38 +56,40 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Java brown page; a lighter cinnamon so fills and icons stay readable */
-    --brand: #d4793a;
-    --brand-600: #e08a4a;
-    --brand-50: #3d2618;
-    --on-brand: #2a1a12;
-    --link: #b5d0f3;
-    --sky: #b5d0f3;
-    --active-pill: rgb(181 208 243 / 16%);
-    --active-ink: #b5d0f3;
-    --cherry: #ff8f86;
-    --accent: #f0c15a;
-    --bg: #1e1512;
-    --surface: #2a1e19;
-    --surface-2: #33251f;
-    --text: #f3ebd3;
-    --text-2: #cdbfa5;
-    --text-3: #a8977f;
-    --border: #45342b;
+    /* deep green-black page, cream text, the same lime and coral */
+    --brand: #b5d92b;
+    --brand-600: #c4e544;
+    --brand-50: #2f3a1c;
+    --brand-ink: #b5d92b;
+    --on-brand: #222b20;
+    --link: #c4e544;
+    --sky: #b5d92b;
+    --active-pill: rgb(181 217 43 / 18%);
+    --active-ink: #b5d92b;
+    --cherry: #ff8a6b;
+    --accent: #ff784f;
+    --on-accent: #222b20;
+    --bg: #1a2118;
+    --surface: #222b20;
+    --surface-2: #2b3528;
+    --text: #f5f2d8;
+    --text-2: #c8c9ad;
+    --text-3: #a2a68e;
+    --border: #3a4636;
     --success: #86cf9c;
     --success-50: #1f3326;
     --on-success: #10261a;
-    --red: #ff8f86;
-    --red-50: #3d1a17;
+    --red: #ff8a70;
+    --red-50: #3d1d17;
     --on-red: #2a0d0a;
     --yellow: #f0c15a;
-    --yellow-50: #3a2c14;
-    --blue: #b5d0f3;
+    --yellow-50: #3a2f14;
+    --blue: #9cc0f0;
     --blue-50: #1f2a3a;
-    --gray-50: #3a2b24;
-    --raise: 6px 6px 14px rgb(0 0 0 / 50%), -4px -4px 12px rgb(255 240 220 / 4%);
-    --raise-sm: 3px 3px 8px rgb(0 0 0 / 50%), -3px -3px 8px rgb(255 240 220 / 4%);
-    --inset: inset 3px 3px 8px rgb(0 0 0 / 50%), inset -3px -3px 8px rgb(255 240 220 / 4%);
+    --gray-50: #2e382b;
+    --raise: 6px 6px 14px rgb(0 0 0 / 50%), -4px -4px 12px rgb(255 255 240 / 4%);
+    --raise-sm: 3px 3px 8px rgb(0 0 0 / 50%), -3px -3px 8px rgb(255 255 240 / 4%);
+    --inset: inset 3px 3px 8px rgb(0 0 0 / 50%), inset -3px -3px 8px rgb(255 255 240 / 4%);
     --glow: 0 6px 16px rgb(0 0 0 / 45%);
     color-scheme: dark;
   }
@@ -262,7 +266,7 @@ code {
 .input:focus-visible,
 .chip:focus-visible,
 .key:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  outline: 3px solid color-mix(in srgb, var(--brand-ink) 55%, transparent);
   outline-offset: 1px;
 }
 .btn-primary {
@@ -292,11 +296,11 @@ code {
 .btn-light,
 .btn-light:hover {
   background: #fff;
-  color: #2a1a12;
+  color: #222b20;
   box-shadow: 0 6px 16px rgb(0 0 0 / 18%);
 }
 .btn-light:hover {
-  background: #f6f1e3;
+  background: #f5f2d8;
 }
 .btn-sm {
   min-height: 32px;
@@ -477,7 +481,7 @@ textarea.input {
   width: 20px;
   height: 20px;
   border: 3px solid var(--border);
-  border-top-color: var(--brand);
+  border-top-color: var(--brand-ink);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -498,7 +502,7 @@ textarea.input {
   height: 72px;
   margin-bottom: 12px;
   border-radius: 50%;
-  color: var(--brand);
+  color: var(--brand-ink);
   background: var(--bg);
   box-shadow: var(--inset);
 }
@@ -547,7 +551,7 @@ textarea.input {
   padding: 12px 16px;
   border-radius: var(--radius-sm);
   color: #fff;
-  background: #2a1a12;
+  background: #222b20;
   box-shadow: var(--shadow);
   animation: pop 0.2s ease-out;
 }
@@ -1080,11 +1084,11 @@ textarea.input {
   font-size: 11px;
 }
 .chart-bar {
-  fill: var(--brand);
+  fill: var(--brand-ink);
   transition: opacity 0.1s;
 }
 .chart-bar.hover {
-  fill: var(--brand-600);
+  fill: var(--brand);
 }
 .chart-tip {
   position: absolute;
@@ -1387,7 +1391,7 @@ textarea.input {
   justify-content: center;
 }
 .status-icon {
-  color: var(--brand);
+  color: var(--brand-ink);
 }
 
 /* ---------- issue screen (phone at the counter) ---------- */
@@ -1574,7 +1578,7 @@ textarea.input {
 }
 .install-inline-icon {
   vertical-align: -2px;
-  color: var(--brand);
+  color: var(--brand-ink);
 }
 .auth-page {
   align-content: center;
@@ -1629,7 +1633,7 @@ textarea.input {
   gap: 6px;
 }
 .schedule-facts svg {
-  color: var(--brand);
+  color: var(--brand-ink);
 }
 .schedule-facts strong {
   font-size: 17px;
@@ -1681,7 +1685,7 @@ textarea.input {
   gap: 8px;
 }
 .phone-field:focus-within {
-  outline: 3px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  outline: 3px solid color-mix(in srgb, var(--brand-ink) 55%, transparent);
   outline-offset: 1px;
 }
 .phone-prefix {

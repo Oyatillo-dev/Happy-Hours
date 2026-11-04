@@ -114,7 +114,7 @@ export default function LoginScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.logo}>
-          <Ionicons name="leaf" size={32} color={colors.white} />
+          <Ionicons name="leaf" size={32} color={colors.onPrimary} />
         </View>
 
         {step === 'phone' ? (
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 20,
-    backgroundColor: colors.brand,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',

@@ -46,7 +46,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
             >
               {center ? (
                 <View style={[styles.centerButton, focused && styles.centerButtonFocused]}>
-                  <Ionicons name={focused ? active : idle} size={24} color={colors.white} />
+                  <Ionicons name={focused ? active : idle} size={24} color={colors.onPrimary} />
                 </View>
               ) : (
                 <View>
@@ -91,12 +91,12 @@ const styles = StyleSheet.create({
     borderRadius: 29,
     borderWidth: 5,
     borderColor: colors.card,
-    backgroundColor: colors.brand,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadow.glow,
   },
-  centerButtonFocused: { backgroundColor: colors.brandDark },
+  centerButtonFocused: { backgroundColor: colors.primaryPressed },
   label: { fontSize: 11, fontWeight: '600', color: colors.muted },
   labelFocused: { color: colors.brand, fontWeight: '800' },
   labelCenter: { color: colors.text, fontWeight: '800' },

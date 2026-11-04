@@ -64,7 +64,7 @@ export function Button({
 }
 
 const buttonVariants = {
-  primary: { bg: colors.brand, fg: colors.white, border: colors.brand },
+  primary: { bg: colors.primary, fg: colors.onPrimary, border: colors.primary },
   secondary: { bg: colors.card, fg: colors.brandDark, border: colors.card },
   danger: { bg: colors.card, fg: colors.danger, border: colors.card },
   ghost: { bg: 'transparent', fg: colors.brandDark, border: 'transparent' },
@@ -88,7 +88,7 @@ export function Chip({
       onPress={onPress}
       style={[styles.chip, active && styles.chipActive]}
     >
-      {icon ? <Ionicons name={icon} size={14} color={active ? colors.white : colors.text} /> : null}
+      {icon ? <Ionicons name={icon} size={14} color={colors.text} /> : null}
       <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
     </Pressable>
   );
@@ -240,9 +240,9 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.card,
     ...shadow.raiseSm,
   },
-  chipActive: { backgroundColor: colors.brand, ...shadow.glow },
+  chipActive: { backgroundColor: colors.primary, ...shadow.glow },
   chipText: { fontSize: 14, color: colors.text, fontWeight: '600' },
-  chipTextActive: { color: colors.white },
+  chipTextActive: { color: colors.onPrimary },
   card: {
     backgroundColor: colors.card,
     borderRadius: radius.lg,

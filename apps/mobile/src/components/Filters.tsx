@@ -57,7 +57,7 @@ export function FiltersBar({ showSearch = true }: { showSearch?: boolean }) {
             onPress={() => setOpen(true)}
             style={[styles.filterBtn, activeCount > 0 && styles.filterBtnActive]}
           >
-            <Ionicons name="options-outline" size={20} color={activeCount > 0 ? colors.white : colors.text} />
+            <Ionicons name="options-outline" size={20} color={colors.text} />
             {activeCount > 0 ? <Text style={styles.filterCount}>{activeCount}</Text> : null}
           </Pressable>
         </View>
@@ -212,14 +212,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  filterBtnActive: { backgroundColor: colors.brand, borderColor: colors.brand },
+  filterBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   filterCount: {
     position: 'absolute',
     top: 4,
     right: 5,
     fontSize: 10,
     fontWeight: '800',
-    color: colors.white,
+    color: colors.onPrimary,
   },
   chips: { gap: space.sm, paddingHorizontal: space.lg },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },

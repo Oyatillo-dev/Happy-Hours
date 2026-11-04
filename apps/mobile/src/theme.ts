@@ -1,30 +1,34 @@
 import type { Category } from '@/api/types';
 
-// Soft UI: a cream page with lighter raised surfaces on warm shadows, cinnamon brown for
-// actions, ice blue for highlights, cherry for discounts and danger.
+// Soft UI, "Electric Citrus": a cream page with white raised cards on soft shadows, lime fills
+// with dark text, coral accents. Lime is too light for text on cream, so text and icons in
+// the brand colour use the darker `brand`; `primary` is only for filled shapes.
 export const colors = {
-  brand: '#8f4309',
-  brandDark: '#6b3207',
-  brandSoft: '#f3e1cd',
-  accent: '#c48a1c',
-  sky: '#b5d0f3',
-  skySoft: '#dfe9f7',
-  cherry: '#8f1418',
+  brand: '#4a6410',
+  brandDark: '#3f5a0c',
+  brandSoft: '#edf4cc',
+  primary: '#b5d92b',
+  primaryPressed: '#a5c81f',
+  onPrimary: '#222b20',
+  accent: '#ff784f',
+  sky: '#b5d92b',
+  skySoft: '#edf4cc',
+  cherry: '#b3401f',
   success: '#2a6f43',
   successSoft: '#e3efdc',
-  bg: '#f6f1e3',
-  card: '#fbf8ef',
+  bg: '#f5f2d8',
+  card: '#ffffff',
   // fields look pressed into the page (React Native has no inset shadow)
-  inset: '#ece4cf',
-  text: '#2a1a12',
-  muted: '#6b5444',
-  faint: '#8a7464',
-  border: '#e2d8c0',
-  danger: '#a0191d',
-  dangerSoft: '#f8e4dc',
+  inset: '#ebe7c8',
+  text: '#222b20',
+  muted: '#565f51',
+  faint: '#7b8274',
+  border: '#e0dcb8',
+  danger: '#b42318',
+  dangerSoft: '#fbe4dc',
   warning: '#8a5600',
   warningSoft: '#f9ebc9',
-  star: '#d99a1e',
+  star: '#ff784f',
   white: '#ffffff',
 };
 
@@ -36,21 +40,21 @@ export const fonts = { display: 'Unbounded_700Bold' };
 /** Raised surfaces: one soft warm shadow (React Native has no second, light shadow). */
 export const shadow = {
   raise: {
-    shadowColor: '#8a7356',
+    shadowColor: '#9a956a',
     shadowOpacity: 0.28,
     shadowRadius: 14,
     shadowOffset: { width: 4, height: 6 },
     elevation: 4,
   },
   raiseSm: {
-    shadowColor: '#8a7356',
+    shadowColor: '#9a956a',
     shadowOpacity: 0.22,
     shadowRadius: 8,
     shadowOffset: { width: 2, height: 4 },
     elevation: 2,
   },
   glow: {
-    shadowColor: '#8f4309',
+    shadowColor: '#8caa14',
     shadowOpacity: 0.35,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },

@@ -80,7 +80,7 @@ function NativeMap({
 
 const styles = StyleSheet.create({
   pin: {
-    backgroundColor: colors.brand,
+    backgroundColor: colors.primary,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 14,
@@ -89,5 +89,5 @@ const styles = StyleSheet.create({
   },
   pinActive: { backgroundColor: colors.white, borderColor: colors.brand },
   pinSold: { backgroundColor: colors.faint },
-  pinText: { color: colors.white, fontWeight: '800', fontSize: 12 },
+  pinText: { color: colors.onPrimary, fontWeight: '800', fontSize: 12 },
 });

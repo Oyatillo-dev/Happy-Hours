@@ -20,8 +20,8 @@ export default defineConfig({
         scope: '/',
         display: 'standalone',
         orientation: 'portrait',
-        background_color: '#f6f1e3',
-        theme_color: '#8f4309',
+        background_color: '#f5f2d8',
+        theme_color: '#b5d92b',
         shortcuts: [
           { name: 'Боксы', url: '/p/offers' },
           { name: 'Выдача заказа', url: '/p/issue' },
