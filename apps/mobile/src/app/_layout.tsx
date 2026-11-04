@@ -1,7 +1,7 @@
 import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { router, Stack } from 'expo-router';
-import { Unbounded_700Bold, useFonts } from '@expo-google-fonts/unbounded';
+import { Manrope_800ExtraBold, useFonts } from '@expo-google-fonts/manrope';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { AppState, Platform } from 'react-native';
@@ -66,8 +66,8 @@ function RootStack() {
 }
 
 export default function RootLayout() {
-  // Headings and prices use Unbounded; on a load error the app falls back to the system font.
-  const [fontsLoaded, fontError] = useFonts({ Unbounded_700Bold });
+  // Headings and prices use Manrope (brand book); on a load error the app falls back to the system font.
+  const [fontsLoaded, fontError] = useFonts({ Manrope_800ExtraBold });
   const [queryClient] = useState(
     () =>
       new QueryClient({

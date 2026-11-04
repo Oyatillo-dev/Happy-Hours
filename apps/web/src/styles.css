@@ -1,31 +1,33 @@
-/* Sakta web — single global stylesheet. Light + dark via CSS variables.
+/* Sakta web — single global stylesheet, colours from the brand book (light only).
    Soft UI: surfaces share the page colour and stand out by light/dark shadow pairs
    (--raise) or sink in (--inset) instead of borders. */
 :root {
-  /* "Electric Citrus": lime fills with dark text, coral accents, cream page, white cards.
-     Lime and coral are too light for text on cream, so text and icons use --brand-ink. */
-  --brand: #b5d92b;
-  --brand-600: #a5c81f;
-  --brand-50: #edf4cc;
-  --brand-ink: #4a6410;
-  --on-brand: #222b20;
-  --link: #4a6410;
-  --sky: #b5d92b;
+  /* Brand book: green #176b52 for actions and links, cream #f5f1e8 page, white cards,
+     dark #173b35 text, gold #e7b66b only for discounts and small accents. */
+  --brand: #176b52;
+  --brand-600: #0f5a44;
+  --brand-50: #e1eee7;
+  --brand-ink: #176b52;
+  --on-brand: #ffffff;
+  --brand-2: #2e8f72;
+  --brand-soft: #a9c8a0;
+  --link: #176b52;
+  --sky: #a9c8a0;
   /* active bottom-bar item */
-  --active-pill: color-mix(in srgb, #b5d92b 55%, transparent);
-  --active-ink: #222b20;
-  --cherry: #b3401f;
-  --accent: #ff784f;
-  --on-accent: #222b20;
-  --bg: #f5f2d8;
+  --active-pill: color-mix(in srgb, #a9c8a0 55%, transparent);
+  --active-ink: #173b35;
+  --cherry: #b42318;
+  --accent: #e7b66b;
+  --on-accent: #173b35;
+  --bg: #f5f1e8;
   --surface: #ffffff;
-  --surface-2: #ebe7c8;
-  --text: #222b20;
-  --text-2: #565f51;
-  --text-3: #5b6556;
-  --border: #e0dcb8;
-  --success: #2a6f43;
-  --success-50: #e3efdc;
+  --surface-2: #ebe5d7;
+  --text: #173b35;
+  --text-2: #4c625b;
+  --text-3: #566b64;
+  --border: #e2dccb;
+  --success: #176b52;
+  --success-50: #e1eee7;
   --on-success: #fff;
   --red: #b42318;
   --red-50: #fbe4dc;
@@ -34,65 +36,24 @@
   --yellow-50: #f9ebc9;
   --blue: #2c5a8f;
   --blue-50: #dfe9f7;
-  --gray-50: #efecd3;
-  --raise: 8px 8px 18px rgb(170 164 118 / 42%), -8px -8px 18px rgb(255 255 255 / 90%);
-  --raise-sm: 4px 4px 10px rgb(170 164 118 / 38%), -4px -4px 10px rgb(255 255 255 / 90%);
-  --inset: inset 3px 3px 8px rgb(170 164 118 / 40%), inset -3px -3px 8px rgb(255 255 255 / 90%);
-  --glow: 0 6px 16px rgb(140 170 20 / 35%);
+  --gray-50: #ede8dc;
+  --raise: 8px 8px 18px rgb(176 166 140 / 40%), -8px -8px 18px rgb(255 255 255 / 90%);
+  --raise-sm: 4px 4px 10px rgb(176 166 140 / 36%), -4px -4px 10px rgb(255 255 255 / 90%);
+  --inset: inset 3px 3px 8px rgb(176 166 140 / 38%), inset -3px -3px 8px rgb(255 255 255 / 90%);
+  --glow: 0 6px 16px rgb(23 107 82 / 30%);
   --shadow: var(--raise);
   --radius: 22px;
   --radius-sm: 14px;
-  --font-display: 'Unbounded', 'Manrope', system-ui, sans-serif;
+  --font-display: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --sidebar: 248px;
   --topbar: 56px;
   --bottombar: 64px;
   color-scheme: light;
   font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.45;
   color: var(--text);
   -webkit-text-size-adjust: 100%;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* deep green-black page, cream text, the same lime and coral */
-    --brand: #b5d92b;
-    --brand-600: #c4e544;
-    --brand-50: #2f3a1c;
-    --brand-ink: #b5d92b;
-    --on-brand: #222b20;
-    --link: #c4e544;
-    --sky: #b5d92b;
-    --active-pill: rgb(181 217 43 / 18%);
-    --active-ink: #b5d92b;
-    --cherry: #ff8a6b;
-    --accent: #ff784f;
-    --on-accent: #222b20;
-    --bg: #1a2118;
-    --surface: #222b20;
-    --surface-2: #2b3528;
-    --text: #f5f2d8;
-    --text-2: #c8c9ad;
-    --text-3: #a2a68e;
-    --border: #3a4636;
-    --success: #86cf9c;
-    --success-50: #1f3326;
-    --on-success: #10261a;
-    --red: #ff8a70;
-    --red-50: #3d1d17;
-    --on-red: #2a0d0a;
-    --yellow: #f0c15a;
-    --yellow-50: #3a2f14;
-    --blue: #9cc0f0;
-    --blue-50: #1f2a3a;
-    --gray-50: #2e382b;
-    --raise: 6px 6px 14px rgb(0 0 0 / 50%), -4px -4px 12px rgb(255 255 240 / 4%);
-    --raise-sm: 3px 3px 8px rgb(0 0 0 / 50%), -3px -3px 8px rgb(255 255 240 / 4%);
-    --inset: inset 3px 3px 8px rgb(0 0 0 / 50%), inset -3px -3px 8px rgb(255 255 240 / 4%);
-    --glow: 0 6px 16px rgb(0 0 0 / 45%);
-    color-scheme: dark;
-  }
 }
 
 *,
@@ -296,11 +257,11 @@ code {
 .btn-light,
 .btn-light:hover {
   background: #fff;
-  color: #222b20;
+  color: #173b35;
   box-shadow: 0 6px 16px rgb(0 0 0 / 18%);
 }
 .btn-light:hover {
-  background: #f5f2d8;
+  background: #f5f1e8;
 }
 .btn-sm {
   min-height: 32px;
@@ -551,7 +512,7 @@ textarea.input {
   padding: 12px 16px;
   border-radius: var(--radius-sm);
   color: #fff;
-  background: #222b20;
+  background: #173b35;
   box-shadow: var(--shadow);
   animation: pop 0.2s ease-out;
 }
@@ -597,8 +558,11 @@ textarea.input {
 }
 .brand-name {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 15px;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text);
 }
 .brand-sub {
   font-size: 12px;
@@ -905,7 +869,7 @@ textarea.input {
   font-size: 13px;
 }
 .card {
-  background: var(--bg);
+  background: var(--surface);
   border: 0;
   border-radius: var(--radius);
   padding: 18px;
@@ -1660,7 +1624,7 @@ textarea.input {
   display: grid;
   place-items: center;
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 18px;
   color: var(--on-brand);
   background: var(--brand);

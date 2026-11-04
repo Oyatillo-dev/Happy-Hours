@@ -1,60 +1,59 @@
 import type { Category } from '@/api/types';
 
-// Soft UI, "Electric Citrus": a cream page with white raised cards on soft shadows, lime fills
-// with dark text, coral accents. Lime is too light for text on cream, so text and icons in
-// the brand colour use the darker `brand`; `primary` is only for filled shapes.
+// Soft UI in the brand book colours: a cream page with white raised cards, green #176b52 for
+// actions and links, dark #173b35 text, gold only for discounts and ratings.
 export const colors = {
-  brand: '#4a6410',
-  brandDark: '#3f5a0c',
-  brandSoft: '#edf4cc',
-  primary: '#b5d92b',
-  primaryPressed: '#a5c81f',
-  onPrimary: '#222b20',
-  accent: '#ff784f',
-  sky: '#b5d92b',
-  skySoft: '#edf4cc',
-  cherry: '#b3401f',
-  success: '#2a6f43',
-  successSoft: '#e3efdc',
-  bg: '#f5f2d8',
+  brand: '#176b52',
+  brandDark: '#0f5a44',
+  brandSoft: '#e1eee7',
+  primary: '#176b52',
+  primaryPressed: '#0f5a44',
+  onPrimary: '#ffffff',
+  accent: '#e7b66b',
+  sky: '#a9c8a0',
+  skySoft: '#e1eee7',
+  cherry: '#b42318',
+  success: '#176b52',
+  successSoft: '#e1eee7',
+  bg: '#f5f1e8',
   card: '#ffffff',
   // fields look pressed into the page (React Native has no inset shadow)
-  inset: '#ebe7c8',
-  text: '#222b20',
-  muted: '#565f51',
-  faint: '#7b8274',
-  border: '#e0dcb8',
+  inset: '#ebe5d7',
+  text: '#173b35',
+  muted: '#4c625b',
+  faint: '#7a8a84',
+  border: '#e2dccb',
   danger: '#b42318',
   dangerSoft: '#fbe4dc',
   warning: '#8a5600',
   warningSoft: '#f9ebc9',
-  star: '#ff784f',
+  star: '#d9a24a',
   white: '#ffffff',
 };
 
 export const radius = { sm: 10, md: 16, lg: 22, pill: 999 };
 
 /** Display face for headings and prices (loaded in app/_layout.tsx); body text stays the system font. */
-export const fonts = { display: 'Unbounded_700Bold' };
+export const fonts = { display: 'Manrope_800ExtraBold' };
 
 /** Raised surfaces: one soft warm shadow (React Native has no second, light shadow). */
 export const shadow = {
   raise: {
-    shadowColor: '#9a956a',
+    shadowColor: '#8f8670',
     shadowOpacity: 0.28,
     shadowRadius: 14,
     shadowOffset: { width: 4, height: 6 },
     elevation: 4,
   },
   raiseSm: {
-    shadowColor: '#9a956a',
+    shadowColor: '#8f8670',
     shadowOpacity: 0.22,
     shadowRadius: 8,
     shadowOffset: { width: 2, height: 4 },
     elevation: 2,
   },
   glow: {
-    shadowColor: '#8caa14',
+    shadowColor: '#176b52',
     shadowOpacity: 0.35,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },

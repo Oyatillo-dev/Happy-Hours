@@ -1,7 +1,6 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState, type ComponentRef } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api } from '@/api/client';
 import type { AuthResponse, User } from '@/api/types';
 import { useAuth } from '@/auth/AuthContext';
@@ -9,7 +8,7 @@ import { Banner, Button } from '@/components/ui';
 import { fmt, useI18n } from '@/i18n';
 import { fmtPhone, formatLocalPhone, normalizePhone } from '@/lib/format';
 import { useNow } from '@/lib/useNow';
-import { colors, fonts, radius, shadow, space } from '@/theme';
+import { colors, fonts, radius, space } from '@/theme';
 
 type Step = 'phone' | 'code' | 'name';
 const RESEND_SECONDS = 60;
@@ -113,9 +112,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.logo}>
-          <Ionicons name="leaf" size={32} color={colors.onPrimary} />
-        </View>
+        <Image source={require('../../assets/logo-mark.png')} style={styles.logo} accessibilityIgnoresInvertColors />
 
         {step === 'phone' ? (
           <>
@@ -217,15 +214,10 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   content: { padding: space.xl, gap: space.md, backgroundColor: colors.bg, flexGrow: 1 },
   logo: {
-    width: 64,
-    height: 64,
-    borderRadius: 20,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 76,
+    height: 76,
     alignSelf: 'center',
     marginVertical: space.md,
-    ...shadow.glow,
   },
   title: { fontSize: 22, lineHeight: 28, fontFamily: fonts.display, color: colors.text, textAlign: 'center' },
   subtitle: { fontSize: 15, color: colors.muted, textAlign: 'center', lineHeight: 21, marginBottom: space.sm },
