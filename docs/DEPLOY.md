@@ -28,7 +28,7 @@ API — постоянно работающий сервер: раз в мину
 
 ## 3. Мобильное приложение
 
-**Тестирование через Expo Go без компьютера (EAS Update).** Проект на expo.dev: `@oyatillo_s/happy-hours`, канал `preview`. Адрес API берётся из переменной `EXPO_PUBLIC_API_URL` окружения `preview` на expo.dev.
+**Тестирование через Expo Go без компьютера (EAS Update).** Проект на expo.dev: `@oyatilloss-team/happy-hours`, канал `preview`. Адрес API берётся из переменной `EXPO_PUBLIC_API_URL` окружения `preview` на expo.dev.
 
 Тестерам — ссылка (или QR с ней), открывать в Expo Go:
 

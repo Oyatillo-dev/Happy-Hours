@@ -1,13 +1,13 @@
 import type { ExpoConfig } from 'expo/config';
 
 const BRAND = '#1f8a4c';
-// EAS project on expo.dev (account oyatillo_s); used for EAS Update and push tokens.
+// EAS project on expo.dev (team oyatilloss-team); used for EAS Update and push tokens.
 const easProjectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID ?? '7b1d4887-8d8d-4012-9e09-c4834dae8358';
 
 const config: ExpoConfig = {
   name: 'Sakta',
   slug: 'happy-hours',
-  owner: 'oyatillo_s',
+  owner: 'oyatilloss-team',
   scheme: 'sakta',
   version: '1.0.0',
   orientation: 'portrait',
