@@ -1,3 +1,4 @@
+import { Wallet } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -72,7 +73,7 @@ export function PayoutsPage() {
       <QueryView query={payouts}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="💸">{t('apay.empty')}</Empty>
+            <Empty icon={Wallet}>{t('apay.empty')}</Empty>
           ) : (
             <>
               <p>

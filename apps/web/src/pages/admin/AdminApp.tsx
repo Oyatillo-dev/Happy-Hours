@@ -1,3 +1,4 @@
+import { LayoutDashboard, ReceiptText, ScrollText, Store, TriangleAlert, UserRound, Wallet } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { adminApi } from '../../api/endpoints';
@@ -28,13 +29,13 @@ export function AdminApp() {
   const count = (n?: number) => (n ? <span className="nav-count">{n}</span> : null);
 
   const nav: NavItem[] = [
-    { to: '/a/dashboard', label: 'nav.dashboard', icon: '📈', primary: true },
-    { to: '/a/partners', label: 'nav.partners', icon: '🏪', primary: true, badge: count(pending.data?.total) },
-    { to: '/a/orders', label: 'nav.adminOrders', icon: '🧾', primary: true },
-    { to: '/a/complaints', label: 'nav.complaints', icon: '⚠️', badge: count(complaints.data?.items.length) },
-    { to: '/a/payouts', label: 'nav.adminPayouts', icon: '💸' },
-    { to: '/a/users', label: 'nav.users', icon: '👤' },
-    { to: '/a/audit', label: 'nav.audit', icon: '📜' },
+    { to: '/a/dashboard', label: 'nav.dashboard', icon: LayoutDashboard, primary: true },
+    { to: '/a/partners', label: 'nav.partners', icon: Store, primary: true, badge: count(pending.data?.total) },
+    { to: '/a/orders', label: 'nav.adminOrders', icon: ReceiptText, primary: true },
+    { to: '/a/complaints', label: 'nav.complaints', icon: TriangleAlert, badge: count(complaints.data?.items.length) },
+    { to: '/a/payouts', label: 'nav.adminPayouts', icon: Wallet },
+    { to: '/a/users', label: 'nav.users', icon: UserRound },
+    { to: '/a/audit', label: 'nav.audit', icon: ScrollText },
   ];
   return (
     <Routes>

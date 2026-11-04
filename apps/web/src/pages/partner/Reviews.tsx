@@ -1,3 +1,4 @@
+import { Star } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { partnerApi } from '../../api/endpoints';
 import { Badge, Empty, PageHeader, QueryView, Stars } from '../../components/ui';
@@ -13,7 +14,7 @@ export function ReviewsPage() {
       <QueryView query={reviews}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="⭐">{t('reviews.empty')}</Empty>
+            <Empty icon={Star}>{t('reviews.empty')}</Empty>
           ) : (
             <div className="cards">
               {items.map((r) => (

@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { authApi } from '../api/endpoints';
 import { useAuth } from '../auth/AuthContext';
+import { InstallPrompt } from '../components/InstallPrompt';
 import { LangSwitch } from '../components/LangSwitch';
 import { ErrorBox, Field } from '../components/ui';
 import { useI18n } from '../i18n';
@@ -122,6 +123,7 @@ export function LoginPage() {
           </form>
         )}
       </div>
+      <InstallPrompt />
     </div>
   );
 }

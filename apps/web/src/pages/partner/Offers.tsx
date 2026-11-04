@@ -1,3 +1,4 @@
+import { Package, ShoppingBag } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
@@ -49,7 +50,7 @@ export function OffersPage() {
       <QueryView query={offers}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="🥐">{t('offers.empty')}</Empty>
+            <Empty icon={ShoppingBag}>{t('offers.empty')}</Empty>
           ) : (
             <div className="cards">
               {items.map((o) => (
@@ -79,7 +80,7 @@ function OfferCard({ offer: o, onQty, onCancel }: { offer: PartnerOffer; onQty: 
           <img className="thumb" src={o.template.photoUrl} alt="" />
         ) : (
           <div className="thumb thumb-empty" aria-hidden>
-            📦
+            <Package size={26} strokeWidth={1.6} />
           </div>
         )}
         <div className="grow">
@@ -202,7 +203,7 @@ function PublishModal({ defaultDate, onClose, onDone }: { defaultDate: string; o
       {loading ? (
         <p>{t('common.loading')}</p>
       ) : usableTemplates.length === 0 ? (
-        <Empty icon="📦">
+        <Empty icon={Package}>
           {t('offers.noTemplates')}
           {me?.role === 'PARTNER_OWNER' && (
             <div>

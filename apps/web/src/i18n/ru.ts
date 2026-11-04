@@ -73,6 +73,13 @@ export const ru = {
   'nav.profile': 'Профиль',
   'nav.status': 'Статус заявки',
   'nav.menu': 'Меню',
+
+  'pwa.title': 'Установите Sakta на телефон',
+  'pwa.text': 'Кабинет откроется с экрана, как обычное приложение.',
+  'pwa.install': 'Установить',
+  'pwa.iosBefore': 'Нажмите',
+  'pwa.share': 'Поделиться',
+  'pwa.iosAfter': 'и выберите «На экран Домой».',
   'nav.dashboard': 'Дашборд',
   'nav.partners': 'Партнёры',
   'nav.adminOrders': 'Заказы',

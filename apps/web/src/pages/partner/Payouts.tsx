@@ -1,3 +1,4 @@
+import { Wallet } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { partnerApi } from '../../api/endpoints';
 import { Badge, Empty, PageHeader, QueryView } from '../../components/ui';
@@ -14,7 +15,7 @@ export function PayoutsPage() {
       <QueryView query={payouts}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="💸">{t('payouts.empty')}</Empty>
+            <Empty icon={Wallet}>{t('payouts.empty')}</Empty>
           ) : (
             <div className="table-wrap">
               <table className="table">

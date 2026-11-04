@@ -1,3 +1,4 @@
+import { UserRound } from 'lucide-react';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -57,7 +58,7 @@ export function UsersPage() {
       <QueryView query={users}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="👤">{t('au.empty')}</Empty>
+            <Empty icon={UserRound}>{t('au.empty')}</Empty>
           ) : (
             <>
               <div className="table-wrap">

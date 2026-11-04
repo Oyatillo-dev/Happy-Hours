@@ -1,3 +1,4 @@
+import { Camera, Check, X } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef, useState, type FormEvent } from 'react';
 import { partnerApi } from '../../api/endpoints';
@@ -73,7 +74,9 @@ export function IssuePage() {
 
       {result?.ok && (
         <div className="issue-result ok" role="status" data-testid="issue-result">
-          <div className="issue-result-icon">✓</div>
+          <div className="issue-result-icon">
+            <Check size={44} strokeWidth={2.5} />
+          </div>
           <div className="issue-result-title">{t('issue.success')}</div>
           <div className="issue-result-number">{result.order.number}</div>
           <div className="issue-result-box">
@@ -87,7 +90,9 @@ export function IssuePage() {
       )}
       {result && !result.ok && (
         <div className="issue-result fail" role="alert" data-testid="issue-result">
-          <div className="issue-result-icon">!</div>
+          <div className="issue-result-icon">
+            <X size={44} strokeWidth={2.5} />
+          </div>
           <div className="issue-result-title">{t('issue.failed')}</div>
           <div className="issue-result-box">{errorText(result.error)}</div>
           <button type="button" className="btn btn-xl btn-light" onClick={() => setResult(null)}>
@@ -121,7 +126,7 @@ export function IssuePage() {
                 setScanning(true);
               }}
             >
-              <span aria-hidden>📷</span> {t('issue.scan')}
+              <Camera size={20} aria-hidden /> {t('issue.scan')}
             </button>
           )}
           {cameraError && <p className="alert alert-warn">{t('issue.cameraError')}</p>}

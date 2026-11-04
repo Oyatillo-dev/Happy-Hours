@@ -1,3 +1,4 @@
+import { ReceiptText, ScanLine } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -24,14 +25,14 @@ export function OrdersPage() {
         sub={t('orders.autoRefresh')}
         actions={
           <Link to="/p/issue" className="btn btn-primary">
-            📷 {t('nav.issue')}
+            <ScanLine size={18} aria-hidden /> {t('nav.issue')}
           </Link>
         }
       />
       <DateNav value={date} onChange={setDate} />
       <QueryView query={orders}>
         {(items) => {
-          if (items.length === 0) return <Empty icon="🧾">{t('orders.empty')}</Empty>;
+          if (items.length === 0) return <Empty icon={ReceiptText}>{t('orders.empty')}</Empty>;
           const toIssue = items.filter((o) => o.status === 'PAID' || o.status === 'READY').length;
           const issued = items.filter((o) => o.status === 'ISSUED').length;
           return (

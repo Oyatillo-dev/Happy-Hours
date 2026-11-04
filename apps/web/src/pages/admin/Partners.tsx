@@ -1,3 +1,4 @@
+import { Store } from 'lucide-react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -54,7 +55,7 @@ export function PartnersPage() {
       <QueryView query={partners}>
         {(data) =>
           data.items.length === 0 ? (
-            <Empty icon="🏪">{t('ap.empty')}</Empty>
+            <Empty icon={Store}>{t('ap.empty')}</Empty>
           ) : (
             <>
               <div className="table-wrap">

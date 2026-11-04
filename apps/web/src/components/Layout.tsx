@@ -1,8 +1,10 @@
+import { Menu, type LucideIcon } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { useI18n, type DictKey } from '../i18n';
 import { phone } from '../lib/format';
+import { InstallPrompt } from './InstallPrompt';
 import { LangSwitch } from './LangSwitch';
 import { NotificationsBell } from './NotificationsBell';
 
@@ -11,7 +13,7 @@ export interface NavItem {
   label: DictKey;
   /** Shorter label for the phone bottom bar */
   short?: DictKey;
-  icon: string;
+  icon: LucideIcon;
   /** Show in the phone bottom bar */
   primary?: boolean;
   badge?: ReactNode;
@@ -39,9 +41,7 @@ export function Shell({ title, nav, banner }: { title: DictKey; nav: NavItem[]; 
         <nav className="nav">
           {nav.map((n) => (
             <NavLink key={n.to} to={n.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              <span className="nav-icon" aria-hidden>
-                {n.icon}
-              </span>
+              <n.icon className="nav-icon" size={20} strokeWidth={1.9} aria-hidden />
               <span>{t(n.label)}</span>
               {n.badge}
             </NavLink>
@@ -64,7 +64,7 @@ export function Shell({ title, nav, banner }: { title: DictKey; nav: NavItem[]; 
       <div className="main">
         <header className="topbar">
           <button type="button" className="icon-btn menu-btn" aria-label={t('nav.menu')} onClick={() => setMenuOpen(true)}>
-            ☰
+            <Menu size={22} aria-hidden />
           </button>
           <div className="topbar-title">{me?.partner?.brandName ?? t(title)}</div>
           <div className="topbar-right">
@@ -74,6 +74,7 @@ export function Shell({ title, nav, banner }: { title: DictKey; nav: NavItem[]; 
         </header>
         {banner}
         <main className="content">
+          <InstallPrompt />
           <Outlet />
         </main>
       </div>
@@ -82,16 +83,12 @@ export function Shell({ title, nav, banner }: { title: DictKey; nav: NavItem[]; 
         <nav className="bottombar">
           {primary.map((n) => (
             <NavLink key={n.to} to={n.to} className={({ isActive }) => `bottom-link ${isActive ? 'active' : ''}`}>
-              <span className="bottom-icon" aria-hidden>
-                {n.icon}
-              </span>
+              <n.icon className="bottom-icon" size={24} strokeWidth={1.9} aria-hidden />
               <span>{t(n.short ?? n.label)}</span>
             </NavLink>
           ))}
           <button type="button" className="bottom-link" onClick={() => setMenuOpen(true)}>
-            <span className="bottom-icon" aria-hidden>
-              ☰
-            </span>
+            <Menu className="bottom-icon" size={24} strokeWidth={1.9} aria-hidden />
             <span>{t('nav.menu')}</span>
           </button>
         </nav>

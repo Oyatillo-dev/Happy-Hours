@@ -1,3 +1,4 @@
+import { SearchX } from 'lucide-react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -67,7 +68,7 @@ export function OrdersPage() {
       <QueryView query={orders}>
         {(data) =>
           data.items.length === 0 ? (
-            <Empty icon="🔎">{t('ao.empty')}</Empty>
+            <Empty icon={SearchX}>{t('ao.empty')}</Empty>
           ) : (
             <>
               <div className="table-wrap">

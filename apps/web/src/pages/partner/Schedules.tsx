@@ -1,3 +1,4 @@
+import { CalendarClock } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { partnerApi } from '../../api/endpoints';
@@ -40,7 +41,7 @@ export function SchedulesPage() {
       <QueryView query={schedules}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="🗓️">{t('schedules.empty')}</Empty>
+            <Empty icon={CalendarClock}>{t('schedules.empty')}</Empty>
           ) : (
             <div className="table-wrap">
               <table className="table">

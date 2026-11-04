@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { Inbox, X, type LucideIcon } from 'lucide-react';
 import { useI18n, type DictKey } from '../i18n';
 import type { OrderStatus, PartnerStatus } from '../api/types';
 
@@ -34,11 +35,11 @@ export function ErrorBox({ error, onRetry }: { error: unknown; onRetry?: () => v
   );
 }
 
-export function Empty({ children, icon = '📭' }: { children: ReactNode; icon?: string }) {
+export function Empty({ children, icon: Icon = Inbox }: { children: ReactNode; icon?: LucideIcon }) {
   return (
     <div className="empty">
       <div className="empty-icon" aria-hidden>
-        {icon}
+        <Icon size={40} strokeWidth={1.6} />
       </div>
       <div>{children}</div>
     </div>
@@ -89,7 +90,7 @@ export function Modal({
         <div className="modal-head">
           <h2>{title}</h2>
           <button type="button" className="icon-btn" onClick={onClose} aria-label={t('common.close')}>
-            ✕
+            <X size={20} aria-hidden />
           </button>
         </div>
         <div className="modal-body">{children}</div>

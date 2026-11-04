@@ -1,3 +1,4 @@
+import { Ban, CircleCheck, Hourglass } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { QueryView } from '../../components/ui';
@@ -12,11 +13,11 @@ export function StatusPage() {
   return (
     <QueryView query={partner}>
       {(p) => {
-        const icon = p.status === 'PENDING' ? '⏳' : p.status === 'ACTIVE' ? '✅' : '⛔';
+        const Icon = p.status === 'PENDING' ? Hourglass : p.status === 'ACTIVE' ? CircleCheck : Ban;
         return (
           <div className="status-screen card">
             <div className="status-icon" aria-hidden>
-              {icon}
+              <Icon size={48} strokeWidth={1.6} />
             </div>
             <h1>{p.status === 'ACTIVE' ? p.brandName : t(`status.${p.status}.title` as DictKey)}</h1>
             {p.status !== 'ACTIVE' && <p>{t(`status.${p.status}.text` as DictKey)}</p>}

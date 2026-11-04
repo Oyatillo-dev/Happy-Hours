@@ -1,3 +1,4 @@
+import { Users } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { partnerApi } from '../../api/endpoints';
@@ -36,7 +37,7 @@ export function StaffPage() {
       <QueryView query={staff}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="👥">{t('staff.empty')}</Empty>
+            <Empty icon={Users}>{t('staff.empty')}</Empty>
           ) : (
             <div className="table-wrap">
               <table className="table">

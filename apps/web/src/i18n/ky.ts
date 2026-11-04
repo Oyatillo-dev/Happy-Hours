@@ -76,6 +76,13 @@ export const ky: Dict = {
   'nav.profile': 'Профиль',
   'nav.status': 'Арыздын абалы',
   'nav.menu': 'Меню',
+
+  'pwa.title': 'Sakta тиркемесин телефонго орнотуңуз',
+  'pwa.text': 'Кабинет экрандан кадимки тиркемедей ачылат.',
+  'pwa.install': 'Орнотуу',
+  'pwa.iosBefore': 'Басыңыз',
+  'pwa.share': 'Бөлүшүү',
+  'pwa.iosAfter': 'жана «Башкы экранга» тандаңыз.',
   'nav.dashboard': 'Дашборд',
   'nav.partners': 'Өнөктөштөр',
   'nav.adminOrders': 'Буйрутмалар',

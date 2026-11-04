@@ -1,3 +1,4 @@
+import { ScrollText } from 'lucide-react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -64,7 +65,7 @@ export function AuditPage() {
       <QueryView query={audit}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="📜">{t('audit.empty')}</Empty>
+            <Empty icon={ScrollText}>{t('audit.empty')}</Empty>
           ) : (
             <>
               <div className="table-wrap">

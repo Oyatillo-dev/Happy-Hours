@@ -1,3 +1,4 @@
+import { CalendarClock, ChartColumn, Hourglass, MapPin, Package, ReceiptText, ScanLine, Settings, ShoppingBag, Star, Users, Wallet } from 'lucide-react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { Shell, type NavItem } from '../../components/Layout';
@@ -27,20 +28,20 @@ export function PartnerApp() {
   const active = status === 'ACTIVE';
 
   const nav: NavItem[] = [
-    ...(!active && status ? [{ to: '/p/status', label: 'nav.status' as const, icon: '⏳' }] : []),
-    { to: '/p/offers', label: 'nav.offers', short: 'offers.title', icon: '🥐', primary: true },
-    { to: '/p/issue', label: 'nav.issue', icon: '📷', primary: true },
-    { to: '/p/orders', label: 'nav.orders', icon: '🧾', primary: true },
-    { to: '/p/reviews', label: 'nav.reviews', icon: '⭐' },
+    ...(!active && status ? [{ to: '/p/status', label: 'nav.status' as const, icon: Hourglass }] : []),
+    { to: '/p/offers', label: 'nav.offers', short: 'offers.title', icon: ShoppingBag, primary: true },
+    { to: '/p/issue', label: 'nav.issue', icon: ScanLine, primary: true },
+    { to: '/p/orders', label: 'nav.orders', icon: ReceiptText, primary: true },
+    { to: '/p/reviews', label: 'nav.reviews', icon: Star },
     ...(isOwner
       ? ([
-          { to: '/p/templates', label: 'nav.templates', icon: '📦' },
-          { to: '/p/schedules', label: 'nav.schedules', icon: '🗓️' },
-          { to: '/p/locations', label: 'nav.locations', icon: '📍' },
-          { to: '/p/staff', label: 'nav.staff', icon: '👥' },
-          { to: '/p/stats', label: 'nav.stats', icon: '📊' },
-          { to: '/p/payouts', label: 'nav.payouts', icon: '💸' },
-          { to: '/p/profile', label: 'nav.profile', icon: '⚙️' },
+          { to: '/p/templates', label: 'nav.templates', icon: Package },
+          { to: '/p/schedules', label: 'nav.schedules', icon: CalendarClock },
+          { to: '/p/locations', label: 'nav.locations', icon: MapPin },
+          { to: '/p/staff', label: 'nav.staff', icon: Users },
+          { to: '/p/stats', label: 'nav.stats', icon: ChartColumn },
+          { to: '/p/payouts', label: 'nav.payouts', icon: Wallet },
+          { to: '/p/profile', label: 'nav.profile', icon: Settings },
         ] satisfies NavItem[])
       : []),
   ];

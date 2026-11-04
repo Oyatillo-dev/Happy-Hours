@@ -1,3 +1,4 @@
+import { MapPin } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { partnerApi } from '../../api/endpoints';
@@ -31,7 +32,7 @@ export function LocationsPage() {
       <QueryView query={locations}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="📍">{t('location.empty')}</Empty>
+            <Empty icon={MapPin}>{t('location.empty')}</Empty>
           ) : (
             <div className="cards">
               {items.map((l) => (

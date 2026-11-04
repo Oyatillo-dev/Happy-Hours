@@ -1,3 +1,4 @@
+import { ChartColumn } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { partnerApi } from '../../api/endpoints';
@@ -39,7 +40,7 @@ export function StatsPage() {
               <Stat label={t('stats.cancellations')} value={num(s.cancellations)} />
             </div>
             {s.daily.length === 0 ? (
-              <Empty icon="📊">{t('stats.noData')}</Empty>
+              <Empty icon={ChartColumn}>{t('stats.noData')}</Empty>
             ) : (
               <div className="grid-2 charts">
                 <section className="card">

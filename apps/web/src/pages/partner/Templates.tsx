@@ -1,3 +1,4 @@
+import { Package } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { upload } from '../../api/client';
@@ -33,12 +34,12 @@ export function TemplatesPage() {
       <QueryView query={templates}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="📦">{t('templates.empty')}</Empty>
+            <Empty icon={Package}>{t('templates.empty')}</Empty>
           ) : (
             <div className="cards">
               {items.map((x) => (
                 <article key={x.id} className={`card template-card ${x.active ? '' : 'is-cancelled'}`}>
-                  {x.photoUrl ? <img className="template-photo" src={x.photoUrl} alt="" /> : <div className="template-photo thumb-empty">📦</div>}
+                  {x.photoUrl ? <img className="template-photo" src={x.photoUrl} alt="" /> : <div className="template-photo thumb-empty"><Package size={32} strokeWidth={1.6} aria-hidden /></div>}
                   <div className="stack-sm">
                     <div className="row-between">
                       <h3>{x.title}</h3>

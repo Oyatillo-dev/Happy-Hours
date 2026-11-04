@@ -1,3 +1,4 @@
+import { CircleCheck } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -25,7 +26,7 @@ export function ComplaintsPage() {
       <QueryView query={complaints}>
         {(items) =>
           items.length === 0 ? (
-            <Empty icon="✅">{t('ac.empty')}</Empty>
+            <Empty icon={CircleCheck}>{t('ac.empty')}</Empty>
           ) : (
             <div className="stack">
               {items.map((c) => (
