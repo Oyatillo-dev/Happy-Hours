@@ -32,7 +32,7 @@ export async function registerForPush(): Promise<PushResult> {
   try {
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
-        name: 'Happy Hours',
+        name: 'Sakta',
         importance: Notifications.AndroidImportance.HIGH,
         lightColor: colors.brand,
       });

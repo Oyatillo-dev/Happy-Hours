@@ -1,4 +1,4 @@
-# Happy Hours — мобильное приложение покупателя
+# Sakta — мобильное приложение покупателя
 
 Expo (SDK 58) + expo-router + TypeScript + React Query. Приложение **не входит** в npm workspaces корня — у него свой `package.json` и свой `node_modules`.
 

@@ -8,7 +8,7 @@ import { colors, fonts, space } from '@/theme';
 /**
  * The bank's payment page inside the app. A browser tab on Android does not reliably hand
  * the "back to the app" link over to Expo Go or the app, so the page stays here instead:
- * the sheet closes when the page tries to leave for an app link (exp://, happyhours://,
+ * the sheet closes when the page tries to leave for an app link (exp://, sakta://,
  * intent://), and the order screen closes it as soon as polling sees the order paid.
  */
 export function PaymentSheet({ url, onClose }: { url: string | null; onClose: () => void }) {

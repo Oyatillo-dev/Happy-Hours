@@ -23,13 +23,13 @@ const escape = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)}
 
 /**
  * Where the "back to the app" button leads. The app passes its own deep link
- * (exp://…/--/orders/{id} in Expo Go, happyhours://orders/{id} in a build); only
+ * (exp://…/--/orders/{id} in Expo Go, sakta://orders/{id} in a build); only
  * app schemes are accepted so this page cannot bounce buyers to another website.
  */
 function returnUrl(query: unknown, orderId: string) {
   const value = (query as { return?: unknown } | undefined)?.return;
-  if (typeof value === 'string' && /^(happyhours|exps?):\/\//.test(value) && value.length < 500) return value;
-  return `happyhours://orders/${orderId}`;
+  if (typeof value === 'string' && /^(sakta|exps?):\/\//.test(value) && value.length < 500) return value;
+  return `sakta://orders/${orderId}`;
 }
 
 /** Button back to the app, plus an automatic return so the buyer does not have to tap. */

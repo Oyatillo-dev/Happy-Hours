@@ -1,4 +1,4 @@
-// Types mirroring the Happy Hours API responses (apps/api). Instants are ISO UTC strings.
+// Types mirroring the Sakta API responses (apps/api). Instants are ISO UTC strings.
 
 export type Role = 'BUYER' | 'PARTNER_OWNER' | 'PARTNER_STAFF' | 'SUPPORT' | 'ADMIN';
 export type Language = 'ru' | 'ky';

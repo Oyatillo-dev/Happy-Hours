@@ -1,19 +1,9 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { fmt, useI18n } from '@/i18n';
-import { colors, radius, space } from '@/theme';
-import { Banner } from './ui';
+import { useI18n } from '@/i18n';
+import { OffersList } from './OffersList';
 import type { LocationGroup } from './mapGroups';
 
-/**
- * react-native-maps has no web implementation. The web build (used for demos/tests)
- * shows the same locations as a list instead.
- */
-export function OffersMap({
-  groups,
-  selectedId,
-  onSelect,
-}: {
+/** react-native-maps has no web implementation. The web build (used for demos/tests) shows a list. */
+export function OffersMap(props: {
   groups: LocationGroup[];
   center: { lat: number; lng: number };
   showsUser: boolean;
@@ -21,41 +11,5 @@ export function OffersMap({
   onSelect: (id: string | null) => void;
 }) {
   const { t } = useI18n();
-  return (
-    <ScrollView style={StyleSheet.absoluteFill} contentContainerStyle={styles.list}>
-      <Banner tone="info" icon="map-outline" text={t.map.webFallback} />
-      {groups.map((g) => (
-        <Pressable
-          key={g.location.id}
-          onPress={() => onSelect(g.location.id === selectedId ? null : g.location.id)}
-          style={[styles.item, g.location.id === selectedId && styles.itemActive]}
-        >
-          <Ionicons name="location" size={20} color={colors.brand} />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.name}>{g.partnerName}</Text>
-            <Text style={styles.address}>{g.location.address}</Text>
-          </View>
-          <Text style={styles.count}>{fmt(t.map.boxesHere, { n: g.offers.length })}</Text>
-        </Pressable>
-      ))}
-    </ScrollView>
-  );
+  return <OffersList {...props} notice={t.map.webFallback} />;
 }
-
-const styles = StyleSheet.create({
-  list: { padding: space.lg, gap: space.sm, paddingBottom: 260 },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    backgroundColor: colors.card,
-    padding: space.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  itemActive: { borderColor: colors.brand },
-  name: { fontWeight: '700', color: colors.text, fontSize: 15 },
-  address: { color: colors.muted, fontSize: 13 },
-  count: { color: colors.brandDark, fontWeight: '600', fontSize: 13 },
-});

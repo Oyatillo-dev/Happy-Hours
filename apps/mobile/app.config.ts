@@ -5,17 +5,17 @@ const BRAND = '#1f8a4c';
 const easProjectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID ?? '7b1d4887-8d8d-4012-9e09-c4834dae8358';
 
 const config: ExpoConfig = {
-  name: 'Happy Hours',
+  name: 'Sakta',
   slug: 'happy-hours',
   owner: 'oyatillo_s',
-  scheme: 'happyhours',
+  scheme: 'sakta',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
   primaryColor: BRAND,
   ios: {
-    bundleIdentifier: 'kg.happyhours.app',
+    bundleIdentifier: 'kg.sakta.app',
     supportsTablet: false,
     infoPlist: {
       // Lets the app check whether the 2GIS app is installed for "open route".
@@ -23,7 +23,7 @@ const config: ExpoConfig = {
     },
   },
   android: {
-    package: 'kg.happyhours.app',
+    package: 'kg.sakta.app',
     adaptiveIcon: {
       backgroundColor: '#E8F5EC',
       foregroundImage: './assets/android-icon-foreground.png',
@@ -48,7 +48,7 @@ const config: ExpoConfig = {
       'expo-location',
       {
         locationWhenInUsePermission:
-          'Happy Hours использует ваше местоположение, чтобы показать боксы в ближайших кафе и пекарнях.',
+          'Sakta использует ваше местоположение, чтобы показать боксы в ближайших кафе и пекарнях.',
       },
     ],
     [
@@ -81,6 +81,8 @@ const config: ExpoConfig = {
   },
   extra: {
     eas: { projectId: easProjectId },
+    // Read by OffersMap: Android builds without a key show a list instead of the map.
+    googleMapsAndroid: !!process.env.GOOGLE_MAPS_ANDROID_API_KEY,
   },
 };
 

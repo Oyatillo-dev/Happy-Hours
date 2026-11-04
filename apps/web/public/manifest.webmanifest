@@ -1,7 +1,7 @@
 {
-  "name": "Happy Hours — кабинет партнёра",
-  "short_name": "Happy Hours",
-  "description": "Кабинет партнёра и панель администратора Happy Hours",
+  "name": "Sakta — кабинет партнёра",
+  "short_name": "Sakta",
+  "description": "Кабинет партнёра и панель администратора Sakta",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

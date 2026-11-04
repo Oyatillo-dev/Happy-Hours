@@ -1,4 +1,4 @@
-/* Happy Hours web — single global stylesheet. Light + dark via CSS variables.
+/* Sakta web — single global stylesheet. Light + dark via CSS variables.
    Soft UI: surfaces share the page colour and stand out by light/dark shadow pairs
    (--raise) or sink in (--inset) instead of borders. */
 :root {

@@ -47,7 +47,7 @@ export async function authRoutes(app: FastifyInstance) {
     await prisma.otpCode.create({
       data: { phone, codeHash: sha256(`${phone}:${code}`), expiresAt: new Date(Date.now() + rules.otpTtlMinutes * 60_000) },
     });
-    await smsProvider.send(phone, `Happy Hours: ваш код ${code}`);
+    await smsProvider.send(phone, `Sakta: ваш код ${code}`);
     // Without a real SMS gateway the code is returned so the apps can be tried out
     // (in production only on a test server that sets SHOW_OTP_CODES).
     const exposeCode = config.SMS_PROVIDER === 'console' && (!config.isProd || config.SHOW_OTP_CODES);

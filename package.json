@@ -1,7 +1,7 @@
 {
   "name": "happy-hours",
   "private": true,
-  "description": "Happy Hours — marketplace for surplus food in Bishkek (Too Good To Go style MVP)",
+  "description": "Sakta — marketplace for surplus food in Bishkek (Too Good To Go style MVP)",
   "workspaces": [
     "apps/api",
     "apps/web"

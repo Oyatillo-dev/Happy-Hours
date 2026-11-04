@@ -1,4 +1,4 @@
-// Happy Hours data model. Money is stored in whole soms (KGS).
+// Sakta data model. Money is stored in whole soms (KGS).
 // Timestamps are UTC; "date" fields on offers are local Bishkek dates (YYYY-MM-DD).
 
 generator client {

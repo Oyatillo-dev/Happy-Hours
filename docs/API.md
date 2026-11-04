@@ -1,4 +1,4 @@
-# Happy Hours API
+# Sakta API
 
 Базовый URL в разработке: `http://localhost:4000`. Все ответы — JSON. Ошибки:
 

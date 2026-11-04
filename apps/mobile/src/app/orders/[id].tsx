@@ -54,7 +54,7 @@ export default function OrderScreen() {
           // No custom-scheme redirect on web: open the bank page in a new tab and poll.
           await WebBrowser.openBrowserAsync(url);
         } else {
-          // Our own deep link (happyhours://orders/{id}, exp://…/--/orders/{id} in Expo Go): the bank
+          // Our own deep link (sakta://orders/{id}, exp://…/--/orders/{id} in Expo Go): the bank
           // page leads there after paying, and the in-app sheet closes when it sees it.
           const returnUrl = Linking.createURL(`orders/${o.id}`);
           setPayPage(

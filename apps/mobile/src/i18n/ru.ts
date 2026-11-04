@@ -1,7 +1,7 @@
 // Russian is the default language. Placeholders like {n} are filled by `fmt()` from ./index.
 export const ru = {
   common: {
-    appName: 'Happy Hours',
+    appName: 'Sakta',
     loading: 'Загрузка…',
     retry: 'Повторить',
     cancel: 'Отмена',
@@ -68,6 +68,7 @@ export const ru = {
   },
   map: {
     webFallback: 'Карта доступна в мобильном приложении. Ниже — список заведений с боксами.',
+    noMap: 'Карта скоро появится. Пока — список заведений с боксами.',
     boxesHere: 'Боксов: {n}',
     myLocation: 'Моё местоположение',
   },

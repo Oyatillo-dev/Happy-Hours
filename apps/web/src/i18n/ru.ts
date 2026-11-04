@@ -1,6 +1,6 @@
 // Russian (default). Keys are shared with ky.ts; `{name}` placeholders are filled by t().
 export const ru = {
-  'app.name': 'Happy Hours',
+  'app.name': 'Sakta',
   'app.partnerCabinet': 'Кабинет партнёра',
   'app.adminPanel': 'Панель администратора',
 
@@ -141,9 +141,9 @@ export const ru = {
 
   // apply (FR-P01)
   'buyer.title': 'Это кабинет для заведений',
-  'buyer.text': 'Вы вошли как покупатель {phone}. Боксы покупают в мобильном приложении Happy Hours. Если у вас пекарня, кафе или магазин — подайте заявку, чтобы продавать боксы.',
+  'buyer.text': 'Вы вошли как покупатель {phone}. Боксы покупают в мобильном приложении Sakta. Если у вас пекарня, кафе или магазин — подайте заявку, чтобы продавать боксы.',
   'buyer.apply': 'Подать заявку как заведение',
-  'apply.title': 'Стать партнёром Happy Hours',
+  'apply.title': 'Стать партнёром Sakta',
   'apply.subtitle': 'Продавайте излишки еды со скидкой вместо того, чтобы выбрасывать. Заполните заявку — мы проверим её в течение 1–2 рабочих дней.',
   'apply.company': 'Заведение',
   'apply.brandName': 'Название (бренд)',
@@ -170,7 +170,7 @@ export const ru = {
   'status.reason': 'Причина: {reason}',
   'status.reapply': 'Исправить и подать снова',
   'status.banner': 'Статус: {status}. Публикация боксов недоступна.',
-  'status.contact': 'Поддержка: support@happyhours.kg',
+  'status.contact': 'Поддержка: support@sakta.kg',
 
   // location form
   'location.name': 'Название точки',

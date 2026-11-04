@@ -3,7 +3,7 @@
 import type { Dict } from './ru';
 
 export const ky: Dict = {
-  'app.name': 'Happy Hours',
+  'app.name': 'Sakta',
   'app.partnerCabinet': 'Өнөктөштүн кабинети',
   'app.adminPanel': 'Администратордун панели',
 
@@ -143,9 +143,9 @@ export const ky: Dict = {
   'notif.newOrder': 'Жаңы буйрутма!',
 
   'buyer.title': 'Бул ишканалар үчүн кабинет',
-  'buyer.text': 'Сиз {phone} сатып алуучу катары кирдиңиз. Бокстор Happy Hours мобилдик тиркемесинде сатылып алынат. Эгер сизде наабайкана, кафе же дүкөн болсо — бокс сатуу үчүн арыз бериңиз.',
+  'buyer.text': 'Сиз {phone} сатып алуучу катары кирдиңиз. Бокстор Sakta мобилдик тиркемесинде сатылып алынат. Эгер сизде наабайкана, кафе же дүкөн болсо — бокс сатуу үчүн арыз бериңиз.',
   'buyer.apply': 'Ишкана катары арыз берүү',
-  'apply.title': 'Happy Hours өнөктөшү болуу',
+  'apply.title': 'Sakta өнөктөшү болуу',
   'apply.subtitle': 'Ашып калган тамакты ыргытпай, арзандатуу менен сатыңыз. Арыз толтуруңуз — 1–2 иш күнүндө текшеребиз.',
   'apply.company': 'Ишкана',
   'apply.brandName': 'Аталышы (бренд)',
@@ -172,7 +172,7 @@ export const ky: Dict = {
   'status.reason': 'Себеби: {reason}',
   'status.reapply': 'Оңдоп, кайра жөнөтүү',
   'status.banner': 'Абалы: {status}. Бокс жарыялоо жеткиликсиз.',
-  'status.contact': 'Колдоо кызматы: support@happyhours.kg',
+  'status.contact': 'Колдоо кызматы: support@sakta.kg',
 
   'location.name': 'Түйүндүн аталышы',
   'location.address': 'Дареги',

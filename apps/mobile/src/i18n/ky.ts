@@ -4,7 +4,7 @@ import type { Dict } from './ru';
 
 export const ky: Dict = {
   common: {
-    appName: 'Happy Hours',
+    appName: 'Sakta',
     loading: 'Жүктөлүүдө…',
     retry: 'Кайталоо',
     cancel: 'Жокко чыгаруу',
@@ -71,6 +71,7 @@ export const ky: Dict = {
   },
   map: {
     webFallback: 'Карта мобилдик тиркемеде жеткиликтүү. Төмөндө бокстору бар ишканалардын тизмеси.',
+    noMap: 'Карта жакында кошулат. Азырынча — бокстору бар ишканалардын тизмеси.',
     boxesHere: 'Бокстор: {n}',
     myLocation: 'Менин жайгашкан жерим',
   },

@@ -1,23 +1,41 @@
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useEffect, useRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker, type Region } from 'react-native-maps';
+import { useI18n } from '@/i18n';
 import { colors } from '@/theme';
+import { OffersList } from './OffersList';
 import type { LocationGroup } from './mapGroups';
 
-/** Native map (react-native-maps): one marker per partner location, label = cheapest price. */
-export function OffersMap({
-  groups,
-  center,
-  showsUser,
-  selectedId,
-  onSelect,
-}: {
+// Google Maps on Android needs an API key in the build (Expo Go brings its own); without
+// one the map crashes the app, so such builds show the list instead.
+const mapUnavailable =
+  Platform.OS === 'android' &&
+  Constants.executionEnvironment !== ExecutionEnvironment.StoreClient &&
+  !Constants.expoConfig?.extra?.googleMapsAndroid;
+
+type Props = {
   groups: LocationGroup[];
   center: { lat: number; lng: number };
   showsUser: boolean;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
-}) {
+};
+
+export function OffersMap(props: Props) {
+  const { t } = useI18n();
+  if (mapUnavailable) return <OffersList {...props} notice={t.map.noMap} />;
+  return <NativeMap {...props} />;
+}
+
+/** Native map (react-native-maps): one marker per partner location, label = cheapest price. */
+function NativeMap({
+  groups,
+  center,
+  showsUser,
+  selectedId,
+  onSelect,
+}: Props) {
   const ref = useRef<MapView>(null);
   const initial: Region = { latitude: center.lat, longitude: center.lng, latitudeDelta: 0.08, longitudeDelta: 0.08 };
 
