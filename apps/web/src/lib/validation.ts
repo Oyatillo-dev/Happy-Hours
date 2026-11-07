@@ -21,6 +21,13 @@ export function normalizePhone(input: string): string | null {
   return null;
 }
 
+/** Payout destination: a +996 phone linked to the bank, or a 10–34 digit account. */
+export function bankAccountError(account: string): 'err.invalid_phone' | 'err.bank_account' | null {
+  const a = account.trim();
+  if (a.startsWith('+996')) return normalizePhone(a) ? null : 'err.invalid_phone';
+  return a.length < 10 || a.length > 34 ? 'err.bank_account' : null;
+}
+
 /** Returns an i18n error key or null. */
 export function priceError(price: number, value: number): 'err.price_too_low' | 'err.value_too_low' | null {
   if (!Number.isFinite(price) || price < rules.minPriceKgs) return 'err.price_too_low';

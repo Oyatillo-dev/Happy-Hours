@@ -2,11 +2,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { partnerApi } from '../../api/endpoints';
 import { LangSwitch } from '../../components/LangSwitch';
+import { BankFields } from '../../components/BankFields';
 import { PhoneInput } from '../../components/PhoneInput';
 import { ErrorBox, Field, PageHeader, PartnerStatusBadge, QueryView, useToast } from '../../components/ui';
 import { useI18n, type DictKey } from '../../i18n';
 import { dateOnly, phone } from '../../lib/format';
-import { normalizePhone } from '../../lib/validation';
+import { bankAccountError, normalizePhone } from '../../lib/validation';
 import { usePartner } from './hooks';
 
 export function ProfilePage() {
@@ -62,7 +63,10 @@ function EditForm({ initial }: { initial: { brandName: string; contactPhone: str
     brandName: d.brandName.trim().length < 2 ? t('err.min_length', { n: 2 }) : null,
     contactPhone: normalizePhone(d.contactPhone) ? null : t('err.invalid_phone'),
     bankName: d.bankName.trim().length < 2 ? t('err.min_length', { n: 2 }) : null,
-    bankAccount: d.bankAccount.trim().length < 10 || d.bankAccount.trim().length > 34 ? t('err.bank_account') : null,
+    bankAccount: (() => {
+      const k = bankAccountError(d.bankAccount);
+      return k ? t(k) : null;
+    })(),
   };
   const save = useMutation({
     mutationFn: () =>
@@ -96,12 +100,13 @@ function EditForm({ initial }: { initial: { brandName: string; contactPhone: str
       <Field label={t('apply.contactPhone')} error={show(errs.contactPhone)} hint={phone(initial.contactPhone)}>
         <PhoneInput value={d.contactPhone} onChange={(v) => setD((x) => ({ ...x, contactPhone: v }))} />
       </Field>
-      <Field label={t('apply.bankName')} error={show(errs.bankName)}>
-        <input className="input" value={d.bankName} maxLength={100} onChange={set('bankName')} />
-      </Field>
-      <Field label={t('apply.bankAccount')} error={show(errs.bankAccount)}>
-        <input className="input" value={d.bankAccount} maxLength={34} onChange={set('bankAccount')} />
-      </Field>
+      <BankFields
+        bankName={d.bankName}
+        bankAccount={d.bankAccount}
+        onChange={(patch) => setD((x) => ({ ...x, ...patch }))}
+        bankNameError={show(errs.bankName)}
+        bankAccountError={show(errs.bankAccount)}
+      />
       {save.error && <ErrorBox error={save.error} />}
       <button className="btn btn-primary" disabled={save.isPending}>
         {t('common.save')}

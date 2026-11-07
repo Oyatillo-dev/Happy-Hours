@@ -5,11 +5,12 @@ import { partnerApi } from '../api/endpoints';
 import { PARTNER_CATEGORIES, type PartnerCategory, type PartnerWithLocations } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { LangSwitch } from '../components/LangSwitch';
+import { BankFields } from '../components/BankFields';
 import { PhoneInput } from '../components/PhoneInput';
 import { ErrorBox, Field } from '../components/ui';
 import { useI18n, type DictKey } from '../i18n';
 import { phone } from '../lib/format';
-import { INN, normalizePhone } from '../lib/validation';
+import { bankAccountError, INN, normalizePhone } from '../lib/validation';
 import { LocationFields, emptyLocation, toLocationInput, validateLocation, type LocationErrors } from './LocationFields';
 
 interface Draft {
@@ -40,7 +41,7 @@ export function ApplyPage({ rejected }: { rejected?: PartnerWithLocations }) {
     category: rejected?.category ?? 'BAKERY',
     contactPhone: rejected?.contactPhone ?? me?.phone ?? '+996',
     bankName: rejected?.bankName ?? '',
-    bankAccount: rejected?.bankAccount ?? '',
+    bankAccount: rejected?.bankAccount ?? '+996',
   });
   const firstLocation = rejected?.locations[0];
   const [loc, setLoc] = useState(
@@ -81,7 +82,8 @@ export function ApplyPage({ rejected }: { rejected?: PartnerWithLocations }) {
     if (!normalizePhone(d.contactPhone)) errs.contactPhone = 'err.invalid_phone';
     if (d.bankName.trim().length < 2) errs.bankName = 'err.required';
     const acc = d.bankAccount.trim();
-    if (acc.length < 10 || acc.length > 34) errs.bankAccount = 'err.bank_account';
+    const accErr = bankAccountError(acc);
+    if (accErr) errs.bankAccount = accErr;
     const le = validateLocation(loc);
     setErrors(errs);
     setLocErrors(le);
@@ -136,14 +138,13 @@ export function ApplyPage({ rejected }: { rejected?: PartnerWithLocations }) {
       </section>
       <section className="card stack">
         <h2>{t('apply.bank')}</h2>
-        <div className="grid-2">
-          <Field label={t('apply.bankName')} error={err('bankName')}>
-            <input className="input" value={d.bankName} maxLength={100} onChange={set('bankName')} />
-          </Field>
-          <Field label={t('apply.bankAccount')} error={err('bankAccount')}>
-            <input className="input" value={d.bankAccount} maxLength={34} onChange={set('bankAccount')} />
-          </Field>
-        </div>
+        <BankFields
+          bankName={d.bankName}
+          bankAccount={d.bankAccount}
+          onChange={(patch) => setD((x) => ({ ...x, ...patch }))}
+          bankNameError={err('bankName')}
+          bankAccountError={err('bankAccount')}
+        />
       </section>
       <section className="card stack">
         <h2>{t('apply.location')}</h2>
