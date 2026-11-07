@@ -1,6 +1,9 @@
 # Local stack: PostgreSQL + API + partner/admin web.
 #   docker compose up --build
 #   docker compose exec api npx tsx prisma/seed.ts   # optional demo data (needs dev deps: use `npm run db:seed` locally instead)
+# Fixed project name: keeps the existing containers and database volume whatever the
+# checkout folder is called.
+name: happy-hours
 services:
   db:
     image: postgres:16-alpine
