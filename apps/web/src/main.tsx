@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { registerSW } from 'virtual:pwa-register';
 import { BrowserRouter } from 'react-router-dom';
 import { ApiError } from './api/client';
 import { App } from './App';
@@ -19,6 +20,10 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// A new deploy installs its service worker in the background; reload once it takes over so
+// people never keep working in the previous version of the cabinet.
+registerSW({ immediate: true });
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

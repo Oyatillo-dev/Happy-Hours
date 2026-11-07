@@ -9,6 +9,7 @@ export default defineConfig({
     // keeps the app shell offline. API calls always go to the network.
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: false,
       pwaAssets: { config: true, overrideManifestIcons: true },
       manifest: {
         id: '/',
