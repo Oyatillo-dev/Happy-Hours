@@ -39,7 +39,7 @@ services:
         value: "+996700000001"
       # The cabinet on Vercel; add your own domain here later, comma separated.
       - key: CORS_ORIGINS
-        value: https://happy-hours-seven.vercel.app
+        value: https://sakta-kg.vercel.app,https://happy-hours-seven.vercel.app
       # Two proxies sit in front of the API on Render: Cloudflare and Render's load balancer
       # (checked: with 1, /health reported a Cloudflare address instead of the caller's).
       - key: TRUST_PROXY
